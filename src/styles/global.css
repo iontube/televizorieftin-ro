@@ -54,9 +54,9 @@ h2{margin-bottom:.5rem}
 /* ===== NAV ===== */
 .nav{position:fixed;top:0;left:0;right:0;z-index:1000}
 .nav__accent{height:3px;background:linear-gradient(90deg,var(--teal),var(--teal-light),var(--teal))}
-.nav__main{max-width:1080px;margin:0 auto;display:flex;align-items:center;height:50px;padding:0 1rem;gap:.5rem;background:#fff}
+.nav{background:#fff;border-bottom:1px solid var(--gray-2)}
+.nav__main{max-width:1080px;margin:0 auto;display:flex;align-items:center;height:50px;padding:0 1rem;gap:.5rem}
 @media(min-width:768px){.nav__main{height:54px;padding:0 2rem}}
-.nav{border-bottom:1px solid var(--gray-2)}
 .nav__logo{flex-shrink:0}
 .nav__logo img{height:34px;width:auto}
 @media(min-width:768px){.nav__logo img{height:38px}}
