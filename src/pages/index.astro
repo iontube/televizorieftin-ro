@@ -1,0 +1,239 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Nav from '../components/Nav.astro';
+import ProductCard from '../components/ProductCard.astro';
+import ProductReview from '../components/ProductReview.astro';
+import SchemaMarkup from '../components/SchemaMarkup.astro';
+import Footer from '../components/Footer.astro';
+import products from '../data/products.json';
+
+const title = 'Ce televizor ieftin sa cumpar in 2026: 15 modele comparate si testate';
+const description = 'Am comparat 15 televizoare ieftine intre 500-1400 lei disponibile in Romania. Samsung, LG, Xiaomi, TCL si METZ de 32 si 43 inch cu Smart TV, 4K, LED si QLED. Recenzie detaliata pentru fiecare model.';
+const allProducts = products.televizoare || [];
+const count = allProducts.length;
+const now = new Date();
+const updated = now.toLocaleDateString('ro-RO', { day: 'numeric', month: 'long', year: 'numeric' });
+const isoDate = now.toISOString().split('T')[0];
+---
+<Layout title={title} description={description}>
+  <SchemaMarkup />
+  <Nav />
+
+  <section class="hero" id="top">
+    <div class="hero__card">
+      <div class="hero__text">
+        <time class="hero__date" datetime={isoDate}>Actualizat {updated}</time>
+        <h1>Ce televizor ieftin sa cumpar in <span class="hero__year">2026</span></h1>
+        <p class="hero__sub">Am testat si comparat {count} televizoare ieftine disponibile in Romania, de la 32 la 43 inch, intre 500 si 1400 lei. Smart TV cu 4K, LED si QLED de la Samsung, LG, Xiaomi, TCL, METZ si Allview. Fiecare model are recenzie detaliata cu avantaje, dezavantaje si verdict, bazata pe specificatii reale si recenzii ale cumparatorilor din magazinele romanesti.</p>
+        {count > 0 && (
+          <div class="hero__actions">
+            <a href="#top-televizoare" class="btn btn--white">Vezi top 3 recomandari</a>
+            <a href="#recomandari" class="btn btn--ghost">Cum alegi corect</a>
+          </div>
+        )}
+      </div>
+      {count > 0 && (
+        <div class="hero__images">
+          {allProducts.slice(0, 3).map((p: any, i: number) => (
+            <img src={`/assets/images/products/${p.slug}.webp`} alt={p.name} width="200" height="200" loading="eager" class={`hero__float hero__float--${i+1}`} />
+          ))}
+        </div>
+      )}
+    </div>
+    {count > 0 && (
+      <div class="hero__bar">
+        <div class="hero__bar-item"><strong>{count}</strong> Modele testate</div>
+        <div class="hero__bar-item"><strong>500-1400</strong> Lei</div>
+        <div class="hero__bar-item"><strong>32-43"</strong> Diagonale</div>
+        <div class="hero__bar-item"><strong>{isoDate.split('-')[0]}</strong> Actualizat</div>
+      </div>
+    )}
+  </section>
+
+  {count > 0 && (
+  <>
+  <section id="top-televizoare" class="winners">
+    <div class="wrap">
+      <span class="tag">Top 3 alegeri</span>
+      <h2>Cele mai bune televizoare ieftine</h2>
+      <p class="sec-sub">Trei recomandari pe categorii de pret. Citeste recenziile complete mai jos.</p>
+      <div class="winners__grid">
+        {allProducts.slice(0, 3).map((p: any, i: number) => (
+          <div class={`winner winner--${i+1}`}>
+            <div class="winner__rank">{i+1}</div>
+            <div class="winner__visual">
+              <img src={`/assets/images/products/${p.slug}.webp`} alt={p.name} width="200" height="200" loading="lazy" />
+            </div>
+            <div class="winner__body">
+              <span class="winner__cat">{i === 0 ? 'Cel mai bun raport calitate-pret' : i === 1 ? 'Cea mai buna imagine' : 'Cel mai accesibil'}</span>
+              <h3 class="winner__name">{p.name}</h3>
+              <div class="winner__specs">
+                {Object.entries(p.specs).map(([k, v]: [string, any]) => (
+                  <span class="winner__spec">{k}: <strong>{v}</strong></span>
+                ))}
+              </div>
+              <div class="winner__actions">
+                <a href={`/out/${p.slug}/`} class="winner__buy" rel="nofollow sponsored noopener" target="_blank">Vezi Oferta</a>
+                <a href={`#recenzie-${p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '')}`} class="winner__review">Recenzie &darr;</a>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section id="televizoare" class="sec--gray">
+    <div class="wrap">
+      <span class="tag">Toate modelele</span>
+      <h2>Televizoare ieftine comparate</h2>
+      <p class="sec-sub">Modele intre 500 si 1400 lei cu recenzie individuala. Fiecare televizor a fost analizat pe calitatea imaginii, platforma Smart TV, conectivitate si raport calitate-pret.</p>
+      <div class="grid">
+        {allProducts.map((p: any, i: number) => (
+          <ProductCard name={p.name} slug={p.slug} affiliate={p.affiliate} specs={p.specs} summary={p.summary} badge={i === 0 ? 'Best Buy' : undefined} badgeType="top" />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <span class="tag">Recenzii detaliate</span>
+      <h2>Ce am descoperit la fiecare televizor</h2>
+      {allProducts.map((p: any) => <ProductReview name={p.name} slug={p.slug} affiliate={p.affiliate} specs={p.specs} review={p.review} />)}
+    </div>
+  </section>
+  </>
+  )}
+
+  <section id="recomandari" class="sec--gray">
+    <div class="wrap">
+      <span class="tag">Recomandari 2026</span>
+      <h2>Cum alegi cel mai bun televizor ieftin</h2>
+      <p class="sec-sub">Ce diagonala, rezolutie si platforma Smart TV sa alegi in functie de camera, buget si continutul pe care il urmaresti. Totul explicat pe intelesul tuturor, fara termeni tehnici inutili.</p>
+      <div class="article-box">
+        <img src="/assets/images/cum-alegi-televizor-ieftin-2026.webp" alt="Cum alegi un televizor ieftin si bun in 2026 - living modern cu TV LED" width="1536" height="1024" loading="lazy" style="border-radius:var(--r-lg);margin-bottom:1.5rem;width:100%;height:auto" />
+
+        <p>Un <strong>televizor ieftin si bun</strong> exista, dar trebuie sa stii ce sa cauti. Piata din Romania in 2026 e plina de modele sub 1500 lei care ofera Smart TV, rezolutie 4K si conectivitate Wi-Fi. Am comparat 15 televizoare disponibile pe eMAG, Altex si Flanco si mai jos iti explicam ce conteaza cand alegi, ca sa nu dai bani degeaba pe functii inutile sau sa ramai cu un ecran care te dezamageste dupa doua luni.</p>
+
+        <h3>Ce diagonala sa alegi: 32, 40 sau 43 inch</h3>
+        <img src="/assets/images/televizor-32-inch-dormitor-bucatarie.webp" alt="Televizor 32 inch montat in dormitor pe perete" width="1536" height="1024" loading="lazy" style="border-radius:var(--r-lg);margin-bottom:1.25rem;width:100%;height:auto" />
+        <p>Diagonala corecta depinde de distanta la care stai fata de ecran. Regula e simpla: distanta in centimetri impartita la 2.5 iti da diagonala ideala. Daca stai la 2 metri de TV (200 cm), un ecran de 80 cm (32 inch) e minimul. La 2.5 metri, 43 inch (109 cm) e alegerea corecta.</p>
+        <p>Un <strong>televizor 32 inch</strong> e potrivit pentru dormitor, bucatarie sau camera de lucru. La aceasta diagonala, Full HD (1920x1080) ofera o imagine clara. HD Ready (1366x768) se vede decent la 32 inch doar daca stai la minim 2 metri. Nu are sens sa cauti 4K la 32 inch, diferenta nu se vede la aceasta dimensiune.</p>
+        <p>Un <strong>televizor 43 inch</strong> e cel mai popular format pentru sufragerie. La 43 inch, rezolutia 4K face diferenta vizibila fata de Full HD, mai ales pe continut de pe Netflix sau YouTube. Daca bugetul permite, 43 inch cu 4K este cea mai buna investitie dintr-un <strong>televizor ieftin</strong> in 2026. Majoritatea modelelor din selectia noastra au 43 inch si costa intre 900-1400 lei.</p>
+        <p><strong>Televizorul de 40 inch</strong> e o varianta intermediara. Exista mai putine modele disponibile la 40 inch fata de 43, dar daca gasesti unul cu QLED sau Google TV la pret bun, merita luat in calcul. <a href="#recenzie-televizor-metz-qled-40mqf7000z">METZ QLED 40MQF7000Z</a> cu Google TV si HDR10 e un exemplu bun in aceasta categorie.</p>
+
+        <h3>Televizor LED vs QLED: ce difera in practica</h3>
+        <img src="/assets/images/televizor-led-vs-qled-comparatie.webp" alt="Comparatie televizor LED vs QLED - diferente de culoare si contrast" width="1536" height="1024" loading="lazy" style="border-radius:var(--r-lg);margin-bottom:1.25rem;width:100%;height:auto" />
+        <p>LED si QLED sunt cele doua tehnologii pe care le gasesti la televizoarele ieftine. LED este standard: panoul LCD e iluminat din spate cu LED-uri. Culorile sunt corecte, contrastul decent, pretul mic. Majoritatea televizoarelor sub 1000 lei sunt LED.</p>
+        <p>QLED adauga un strat de quantum dots (puncte cuantice) intre LED-uri si panou. Rezultatul: culori mai vii, luminozitate mai mare si contrast imbunatatit. In practica, diferenta se vede cel mai bine pe continut HDR si pe scene cu culori saturate. La televizoare ieftine, QLED nu transforma experienta radical, dar adauga un plus vizibil de calitate.</p>
+        <p>Din selectia noastra, trei modele au QLED: <a href="#recenzie-televizor-xiaomi-qled-a-pro">Xiaomi QLED A Pro 32 inch</a>, <a href="#recenzie-televizor-metz-qled-40mqf7000z">METZ QLED 40MQF7000Z</a> si <a href="#recenzie-televizor-tcl-qled-32s4k">TCL QLED 32S4K</a>. Toate costa sub 1200 lei si ofera culori mai bune decat echivalentele LED la acelasi pret.</p>
+        <p>Daca bugetul e limitat si vrei cel mai mare ecran posibil, alege LED. Daca preferi calitatea imaginii si poti accepta o diagonala mai mica, QLED merita diferenta de pret.</p>
+
+        <h3>Smart TV: ce platforma sa alegi</h3>
+        <img src="/assets/images/televizor-smart-tv-streaming-aplicatii.webp" alt="Smart TV cu aplicatii de streaming Netflix YouTube HBO" width="1536" height="1024" loading="lazy" style="border-radius:var(--r-lg);margin-bottom:1.25rem;width:100%;height:auto" />
+        <p>In 2026, un <strong>smart TV ieftin</strong> nu mai e un compromis. Aproape toate modelele din selectia noastra au Wi-Fi integrat si acces la aplicatii de streaming. Diferenta e in platforma: Google TV, Android TV, Tizen, webOS sau Vidaa. Fiecare are avantaje si limitari.</p>
+        <p><strong>Google TV</strong> (prezent pe Xiaomi, METZ, Horizon si Tesla) ofera cea mai buna experienta la televizoare ieftine. Ai acces la Google Play Store cu mii de aplicatii, Chromecast integrat, Google Assistant si o interfata fluida. Actualizarile vin regulat si aplicatiile noi apar rapid.</p>
+        <p><strong>Android TV</strong> (pe Star-Light, Kiano, KB Elements, Allview) e similar cu Google TV dar cu o interfata mai veche. Ai acces la aceleasi aplicatii din Play Store, dar tranzitiile pot fi mai lente pe procesoare slabe. Verifica sa aiba minim 1.5 GB RAM pentru o utilizare fara blocaje.</p>
+        <p><strong>Tizen</strong> (Samsung) si <strong>webOS</strong> (LG, Blaupunkt) sunt platforme proprietare. Avantajul: sunt optimizate pentru hardware-ul televizorului si ruleaza fluid. Dezavantajul: catalogul de aplicatii e mai mic decat Google Play Store. Aplicatiile principale (Netflix, YouTube, HBO Max, Disney+, Prime Video) sunt disponibile pe toate platformele.</p>
+        <p><strong>Vidaa</strong> (Schneider) e cea mai limitata platforma din selectie. Are aplicatiile de baza dar catalogul e restrans. Daca folosesti streaming intens, evita Vidaa sau adauga un stick de streaming extern (Chromecast, Fire TV Stick) de 100-150 lei.</p>
+
+        <h3>Rezolutia: HD Ready, Full HD sau 4K</h3>
+        <p>Rezolutia determina cate puncte (pixeli) formeaza imaginea. Cu cat sunt mai multi, cu atat imaginea e mai clara si mai detaliata.</p>
+        <ul>
+          <li><strong>HD Ready (1366x768)</strong> - suficient pentru 32 inch la distanta de 2+ metri. Continutul de pe TV prin cablu si YouTube la 720p arata bine. La sub 600 lei gasesti modele HD Ready cu Smart TV.</li>
+          <li><strong>Full HD (1920x1080)</strong> - ideal pentru 32-40 inch. Netflix si HBO Max redau implicit la Full HD pe abonamentele standard. La 32 inch, diferenta dintre Full HD si 4K e aproape invizibila la distanta normala de vizionare.</li>
+          <li><strong>4K Ultra HD (3840x2160)</strong> - recomandat de la 43 inch in sus. Continutul 4K pe Netflix (abonament Premium), YouTube si Disney+ arata cu adevarat diferit pe un ecran de 43 inch. La televizoare ieftine, majoritatea modelelor de 43 inch au 4K.</li>
+        </ul>
+        <p>Nu te lasa impresionat de 4K la un <strong>televizor de 32 inch</strong>. La aceasta diagonala, ochiul uman nu distinge diferenta fata de Full HD la distanta normala de vizionare (1.5-2.5 metri). Platesti mai mult fara beneficiu real.</p>
+
+        <h3>Ce televizor ieftin sa cumpar in 2026</h3>
+        <img src="/assets/images/televizor-43-inch-living-sufragerie.webp" alt="Televizor 43 inch in living modern - alegerea potrivita pentru sufragerie" width="1536" height="1024" loading="lazy" style="border-radius:var(--r-lg);margin-bottom:1.25rem;width:100%;height:auto" />
+        <p><strong>Ce televizor sa cumpar</strong> depinde de trei factori: camera in care il pui, bugetul disponibil si ce continut urmaresti cel mai des. Mai jos, recomandari concrete pe scenarii de utilizare:</p>
+        <p><strong>Pentru dormitor sau bucatarie (sub 800 lei)</strong>: un televizor de 32 inch cu Smart TV e suficient. <a href="#recenzie-televizor-nei-led-32ne4901">NEI 32NE4901</a> e cel mai accesibil din selectie, iar <a href="#recenzie-televizor-tcl-qled-32s4k">TCL QLED 32S4K</a> ofera panou QLED la un pret mic. Ambele au Wi-Fi si aplicatii de streaming.</p>
+        <p><strong>Pentru sufragerie (800-1200 lei)</strong>: un televizor de 43 inch cu 4K si Smart TV. <a href="#recenzie-televizor-samsung-led-43u8092">Samsung 43U8092</a> cu Tizen e referinta de fiabilitate. <a href="#recenzie-televizor-led-star-light-43dm7600">Star-Light 43DM7600</a> ofera 4K cu Android TV la un pret foarte competitiv. <a href="#recenzie-televizor-led-diamant-by-horizon-43hl5530u-c">Diamant by Horizon 43HL5530U</a> combina 4K cu pret accesibil.</p>
+        <p><strong>Cel mai bun raport calitate-pret</strong>: <a href="#recenzie-televizor-samsung-led-43u8092">Samsung 43U8092</a> la 43 inch si <a href="#recenzie-televizor-xiaomi-qled-a-pro">Xiaomi QLED A Pro</a> la 32 inch. Samsung ofera ecosistem complet cu Tizen si Crystal UHD. Xiaomi are QLED si Google TV la un pret competitiv.</p>
+
+        <h3>Conectivitate: ce porturi conteza</h3>
+        <p>Porturile par un detaliu tehnic plictisitor, dar fac diferenta in utilizarea zilnica. Un televizor cu un singur port HDMI te obliga sa tot schimbi cablurile intre consola, soundbar si decodor.</p>
+        <p>Minim necesar: <strong>2 porturi HDMI</strong> (unul pentru decodor/consola, unul pentru soundbar), <strong>1 USB</strong> (pentru stick cu filme sau alimentare Chromecast), <strong>Wi-Fi integrat</strong> (pentru Smart TV si streaming) si <strong>Bluetooth</strong> (pentru casti wireless sau soundbar Bluetooth).</p>
+        <p>Verifica sa existe cel putin un port <strong>HDMI ARC</strong> (Audio Return Channel). Acesta permite conectarea unui soundbar cu un singur cablu HDMI, fara cablu optic separat. La televizoare ieftine, sunetul integrat e slab (boxe de 10-16W), asa ca un soundbar de 200-300 lei face diferenta.</p>
+        <p><a href="#recenzie-televizor-led-kb-elements">KB Elements 32 inch</a> are 3 porturi HDMI, cel mai generos din selectia de 32 inch. La 43 inch, <a href="#recenzie-televizor-blaupunkt-led-43ulw6000s">Blaupunkt 43ULW6000S</a> cu webOS ofera conectivitate completa inclusiv Bluetooth.</p>
+
+        <h3>Samsung vs LG vs Xiaomi vs branduri mai putin cunoscute</h3>
+        <p>Brandurile mari (Samsung, LG) ofera garantie solida, service in orasele mari si actualizari software pe termen lung. Un <strong>televizor Samsung ieftin</strong> de 43 inch cu Tizen primeste actualizari 3-4 ani dupa lansare. Un <strong>televizor LG ieftin</strong> cu webOS la fel.</p>
+        <p>Brandurile mai noi (Xiaomi, TCL, METZ, Hisense) au preturi cu 15-30% mai mici la specificatii similare. Calitatea panoului e comparabila, iar platformele Smart TV (Google TV, Android TV) sunt identice. Service-ul poate fi mai greu de gasit in orasele mici, dar garantia legala de 2 ani se aplica la fel.</p>
+        <p>Brandurile romanesti sau mai putin cunoscute (Star-Light, Diamant, Kiano, NEI, KB Elements, Schneider) ofera cel mai mic pret. Panoul LCD vine de la aceiasi furnizori (BOE, Innolux) ca la brandurile mari. Diferenta e in software (actualizari mai rare), boxe (de obicei mai slabe) si telecomanda (fara butoane dedicate Netflix/YouTube).</p>
+        <p>Recomandarea noastra: daca bugetul permite, alege Samsung sau LG pentru siguranta pe termen lung. Daca vrei cel mai bun pret, Xiaomi si TCL ofera cel mai bun compromis intre calitate si cost. Star-Light si Diamant sunt alegeri bune daca prioritatea e pretul minim si nu te deranjeaza un brand mai putin cunoscut.</p>
+
+        <h3>Cand sa cumperi: perioade cu reduceri reale</h3>
+        <p>Preturile televizoarelor fluctueaza semnificativ pe parcursul anului. Cele mai bune momente pentru achizitie:</p>
+        <ul>
+          <li><strong>Black Friday (noiembrie)</strong>: reduceri de 15-30% pe modele populare. Preturile sunt verificabil mai mici decat media anuala pe eMAG, Altex si Flanco.</li>
+          <li><strong>Ianuarie-februarie</strong>: magazinele lichideaza stocurile de modele din anul precedent. Preturile scad cu 10-20% pentru a face loc noilor lansari.</li>
+          <li><strong>eMAG Genius Days si Altex Sale</strong>: reduceri punctuale de 10-15% pe parcursul anului, dar nu la fel de mari ca Black Friday.</li>
+        </ul>
+        <p>Evita sa cumperi in septembrie-octombrie, cand preturile cresc in anticiparea Black Friday. Daca nu e urgent, pune produsul in lista de favorite si urmareste pretul pe un comparator (Compari.ro, Price.ro) timp de 2-3 saptamani.</p>
+
+        <h3>Cat consuma un televizor ieftin</h3>
+        <p>Consumul energetic e un cost ascuns pe care multi il ignora. Un televizor LED de 43 inch consuma in medie 40-60W pe ora. La 5 ore de utilizare zilnica si un pret al energiei de 1.3 lei/kWh, costul lunar este de 8-12 lei. Pe an, asta inseamna 100-140 lei.</p>
+        <p>Televizoarele de 32 inch consuma mai putin: 25-40W. Costul lunar scade la 5-8 lei. QLED consuma similar cu LED la aceeasi diagonala, deci nu exista penalizare energetica pentru calitatea superioara a imaginii.</p>
+        <p>Clasa energetica (afisata pe eticheta UE) variaza de la E la G pentru majoritatea televizoarelor ieftine. Diferenta reala intre clase este de 10-15W, adica 2-3 lei pe luna. Nu merita sa alegi un televizor inferior doar pentru o clasa energetica mai buna.</p>
+
+        <h3>Montaj si instalare</h3>
+        <p>Un televizor de 32 inch cantareste 3-5 kg si se poate monta pe perete cu un suport VESA de 50-80 lei. Un televizor de 43 inch cantareste 6-9 kg si necesita un suport VESA mai robust (80-120 lei). Asigura-te ca peretele suporta greutatea (gips-cartonul necesita dibluri speciale).</p>
+        <p>Toate televizoarele din selectia noastra vin cu picioare/stand inclus. Daca il pui pe o comoda sau masa TV, verifica sa aiba spatiu suficient: un TV de 43 inch are latimea de circa 97 cm cu picioare.</p>
+
+        <div class="article-box__callout">
+          <strong>Concluzie:</strong>
+          <p>Un televizor ieftin si bun in 2026 costa intre 700-1400 lei. La 32 inch alege QLED sau Full HD cu Smart TV. La 43 inch alege 4K cu Google TV sau Tizen. Verifica sa aiba minim 2 HDMI, Wi-Fi si Bluetooth. Cumpara de Black Friday sau in ianuarie pentru cel mai bun pret.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq" class="faq-section">
+    <div class="wrap">
+      <div class="faq-header">
+        <span class="tag">Intrebari frecvente</span>
+        <h2>Raspunsuri la ce conteaza</h2>
+        <p class="sec-sub">8 intrebari pe care le primim cel mai des de la cumparatorii de televizoare ieftine.</p>
+      </div>
+      <div class="faq-grid">
+        {[
+          { q: 'Ce televizor ieftin sa cumpar in 2026?', a: 'Depinde de diagonala si utilizare. Pentru dormitor un model de 32 inch cu HD e suficient. Pentru sufragerie, alege minim 43 inch cu 4K.' },
+          { q: 'Merita un televizor 4K ieftin?', a: 'Da, diferenta de pret fata de Full HD e mica, iar continutul 4K pe Netflix, YouTube si streaming devine standard.' },
+          { q: 'Ce diagonala sa aleg?', a: 'Regula: distanta de vizionare in cm impartita la 2.5 = diagonala ideala in cm. La 2 metri distanta, un TV de 80 cm (32 inch) e minim.' },
+          { q: 'Smart TV sau TV simplu?', a: 'In 2026, aproape toate televizoarele ieftine sunt Smart TV. Diferenta de pret e neglijabila, iar accesul la Netflix, YouTube si HBO Max merita.' },
+          { q: 'Ce brand e cel mai bun?', a: 'Samsung si LG au cel mai bun raport calitate-pret. Hisense si Allview ofera preturi si mai mici cu performante decente.' },
+          { q: 'Cat consuma un televizor ieftin?', a: 'Un TV LED de 43 inch consuma 30-60W, adica 5-10 lei pe luna la 5 ore/zi de utilizare.' },
+          { q: 'Cand e cel mai bun moment sa cumpar?', a: 'Black Friday (noiembrie) si iarna (ianuarie-februarie) cand magazinele lichideaza stocurile.' },
+          { q: 'Ce conexiuni trebuie sa aiba?', a: 'Minim 2 porturi HDMI, 1 USB, Wi-Fi integrat si Bluetooth. Verifica sa aiba HDMI ARC pentru soundbar.' },
+        ].map((item, i) => (
+          <div class="faq-card">
+            <button class="faq-card__q" aria-expanded="false">
+              <span class="faq-card__num">{String(i + 1).padStart(2, '0')}</span>
+              <span class="faq-card__text">{item.q}</span>
+              <span class="faq-card__icon">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path class="faq-card__arrow" d="M5 7l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
+            </button>
+            <div class="faq-card__a">{item.a}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-band">
+    <div class="wrap cta-band__inner">
+      <div>
+        <p class="cta-band__title">Nu stii ce televizor sa alegi?</p>
+        <p class="cta-band__sub">15 televizoare ieftine analizate individual cu avantaje, dezavantaje si verdict. Preturi intre 500-1400 lei, actualizate zilnic.</p>
+      </div>
+      {count > 0 && <a href="#televizoare" class="btn btn--white">Vezi televizoarele</a>}
+    </div>
+  </section>
+
+  <Footer />
+</Layout>

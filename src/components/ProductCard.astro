@@ -1,0 +1,33 @@
+---
+interface Props {
+  name: string;
+  slug: string;
+  affiliate: string;
+  specs: Record<string, string>;
+  summary?: string;
+  badge?: string;
+  badgeType?: string;
+}
+const { name, slug, affiliate, specs, summary, badge, badgeType = 'top' } = Astro.props;
+const imgSrc = `/assets/images/products/${slug}.webp`;
+const reviewId = 'recenzie-' + name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/,'');
+---
+<article class="card">
+  {badge && <span class={`card__badge card__badge--${badgeType}`}>{badge}</span>}
+  <div class="card__img">
+    <img src={imgSrc} alt={name} width="400" height="300" loading="lazy" />
+  </div>
+  <div class="card__body">
+    <h3 class="card__name">{name}</h3>
+    <div class="card__specs">
+      {Object.entries(specs).map(([k, v]) => (
+        <span class="card__spec"><span class="card__key">{k}</span> {v}</span>
+      ))}
+    </div>
+    {summary && <p class="card__summary">{summary}</p>}
+  </div>
+  <div class="card__actions">
+    <a href={`/out/${slug}/`} class="card__buy" rel="nofollow sponsored noopener" target="_blank">Vezi Oferta</a>
+    <a href={`#${reviewId}`} class="card__link">Recenzie</a>
+  </div>
+</article>

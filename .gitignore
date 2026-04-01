@@ -1,0 +1,30 @@
+# build output
+dist/
+.astro/
+
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+
+# environment
+.env
+.env.production
+
+# os
+.DS_Store
+
+# ide
+.idea/
+.vscode/
+
+# claude
+.claude/
+skills-lock.json
+
+# wrangler
+.wrangler/
+
+# lighthouse
+lighthouse-*.json

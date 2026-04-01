@@ -1,0 +1,76 @@
+---
+interface Props {
+  title: string;
+  description: string;
+}
+const { title, description } = Astro.props;
+const siteUrl = 'https://televizorieftin.ro';
+const now = new Date();
+const isoNow = now.toISOString();
+---
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <link rel="canonical" href={siteUrl + Astro.url.pathname} />
+
+  <meta property="og:type" content="article" />
+  <meta property="article:published_time" content="2026-04-01T08:00:00+03:00" />
+  <meta property="article:modified_time" content={isoNow} />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={siteUrl + Astro.url.pathname} />
+  <meta property="og:site_name" content="televizorieftin.ro" />
+  <meta property="og:locale" content="ro_RO" />
+  <meta property="og:image" content={`${siteUrl}/assets/images/og-cover.webp`} />
+  <meta property="og:image:width" content="1536" />
+  <meta property="og:image:height" content="1024" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={`${siteUrl}/assets/images/og-cover.webp`} />
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <meta name="theme-color" content="#0c0a09" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" /></noscript>
+
+  <style is:global>
+    @import '../styles/global.css';
+  </style>
+</head>
+<body>
+  <main><slot /></main>
+
+  <div class="cookie" id="cookieBanner">
+    <div class="cookie__inner">
+      <div class="cookie__text">Folosim cookies pentru a imbunatati experienta. <a href="/politica-cookies/">Politica cookies</a>.</div>
+      <div class="cookie__btns">
+        <button class="cookie__accept" id="cookieAccept">Accept</button>
+        <button class="cookie__decline" id="cookieDecline">Refuz</button>
+      </div>
+    </div>
+  </div>
+
+  <button class="to-top" id="toTop" aria-label="Inapoi sus">&#8593;</button>
+
+  <script is:inline>
+    (function(){var c=localStorage.getItem('cookie_consent');if(!c)document.getElementById('cookieBanner').classList.add('show');document.getElementById('cookieAccept').addEventListener('click',function(){localStorage.setItem('cookie_consent','ok');document.getElementById('cookieBanner').classList.remove('show')});document.getElementById('cookieDecline').addEventListener('click',function(){localStorage.setItem('cookie_consent','no');document.getElementById('cookieBanner').classList.remove('show')})})();
+    (function(){var b=document.getElementById('toTop');window.addEventListener('scroll',function(){b.classList.toggle('show',window.scrollY>600)});b.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'})})})();
+    document.querySelectorAll('.faq__q,.faq-card__q,.faq-card__q').forEach(function(q){q.addEventListener('click',function(){var item=this.parentElement;item.classList.toggle('active');this.setAttribute('aria-expanded',item.classList.contains('active'))})});
+    (function(){var burger=document.getElementById('navBurger'),drawer=document.getElementById('navDrawer'),scrim=document.getElementById('navScrim'),close=document.getElementById('navClose');if(!burger||!drawer)return;function open(){drawer.classList.add('open');document.body.style.overflow='hidden'}function shut(){drawer.classList.remove('open');document.body.style.overflow=''}burger.addEventListener('click',open);scrim.addEventListener('click',shut);close.addEventListener('click',shut);drawer.querySelectorAll('.mobile-menu__nav a,.drawer__nav a,.overlay-menu__nav a').forEach(function(a){a.addEventListener('click',shut)})})();
+    if(!window.matchMedia('(prefers-reduced-motion:reduce)').matches){var obs=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting){x.target.classList.add('vis');obs.unobserve(x.target)}})},{threshold:.1});document.querySelectorAll('.fade-up').forEach(function(el){obs.observe(el)})}
+  </script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+---
+import products from '../data/products.json';
+const allProducts = products.televizoare || [];
+const count = allProducts.length;
+const now = new Date();
+const isoDate = now.toISOString().split('T')[0];
+const siteUrl = 'https://televizorieftin.ro';
+
+const faqItems = [
+  { q: 'Ce televizor ieftin sa cumpar in 2026?', a: 'Depinde de diagonala si utilizare. Pentru dormitor un model de 32 inch cu HD e suficient. Pentru sufragerie, alege minim 43 inch cu 4K.' },
+  { q: 'Merita un televizor 4K ieftin?', a: 'Da, diferenta de pret fata de Full HD e mica, iar continutul 4K pe Netflix, YouTube si streaming devine standard.' },
+  { q: 'Ce diagonala sa aleg?', a: 'Regula: distanta de vizionare in cm impartita la 2.5 = diagonala ideala in cm. La 2 metri distanta, un TV de 80 cm (32 inch) e minim.' },
+  { q: 'Smart TV sau TV simplu?', a: 'In 2026, aproape toate televizoarele ieftine sunt Smart TV. Diferenta de pret e neglijabila, iar accesul la Netflix, YouTube si HBO Max merita.' },
+  { q: 'Ce brand de televizor ieftin e cel mai bun?', a: 'Samsung si LG au cel mai bun raport calitate-pret in segmentul ieftin. Hisense si Allview ofera preturi si mai mici cu performante decente.' },
+  { q: 'Cat consuma un televizor ieftin?', a: 'Un TV LED de 43 inch consuma 30-60W, adica 5-10 lei pe luna la 5 ore/zi de utilizare.' },
+  { q: 'Cand e cel mai bun moment sa cumpar?', a: 'Black Friday (noiembrie) si iarna (ianuarie-februarie) cand magazinele lichideaza stocurile.' },
+  { q: 'Ce conexiuni sa aiba un televizor ieftin?', a: 'Minim 2 porturi HDMI, 1 USB, Wi-Fi integrat si Bluetooth. Verifica sa aiba HDMI ARC pentru soundbar.' },
+];
+
+const website = { '@type': 'WebSite', '@id': siteUrl + '/#website', url: siteUrl, name: 'televizorieftin.ro', description: 'Comparatii de televizoare ieftine in Romania', inLanguage: 'ro-RO' };
+const org = { '@type': 'Organization', '@id': siteUrl + '/#organization', name: 'televizorieftin.ro', url: siteUrl, logo: { '@type': 'ImageObject', url: siteUrl + '/assets/images/logo-televizorieftin.webp' } };
+const article = { '@type': 'Article', headline: 'Ce televizor ieftin sa cumpar in 2026: ' + count + ' modele comparate si testate', datePublished: '2026-04-01T08:00:00+03:00', dateModified: isoDate + 'T08:00:00+03:00', author: { '@type': 'Organization', name: 'televizorieftin.ro' }, publisher: { '@id': siteUrl + '/#organization' }, mainEntityOfPage: siteUrl + '/', description: 'Am comparat ' + count + ' televizoare ieftine intre 500-1400 lei disponibile in Romania. Samsung, LG, Xiaomi, TCL si METZ de 32 si 43 inch cu Smart TV, 4K, LED si QLED.', inLanguage: 'ro-RO' };
+const breadcrumb = { '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Acasa', item: siteUrl + '/' }] };
+const itemList = { '@type': 'ItemList', name: 'Cele mai bune televizoare ieftine 2026', numberOfItems: count, itemListElement: allProducts.map((p: any, i: number) => ({ '@type': 'ListItem', position: i + 1, name: p.name, url: siteUrl + '/out/' + p.slug + '/' })) };
+const faqPage = { '@type': 'FAQPage', mainEntity: faqItems.map(f => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) };
+const howTo = { '@type': 'HowTo', name: 'Cum alegi cel mai bun televizor ieftin', step: [
+  { '@type': 'HowToStep', name: 'Stabileste bugetul', text: 'Decide cat vrei sa investesti. Televizoare bune incep de la 600-700 lei.' },
+  { '@type': 'HowToStep', name: 'Alege diagonala', text: 'Masoara distanta de vizionare si alege diagonala potrivita.' },
+  { '@type': 'HowToStep', name: 'Verifica rezolutia', text: 'HD pentru sub 32 inch, Full HD pentru 32-40 inch, 4K pentru 43+ inch.' },
+  { '@type': 'HowToStep', name: 'Compara preturile', text: 'Verifica pretul pe mai multe magazine si asteapta reduceri daca nu e urgent.' },
+] };
+
+const schemas = [website, org, article, breadcrumb, itemList, faqPage, howTo].map(s => ({ '@context': 'https://schema.org', ...s }));
+---
+{schemas.map(s => <script type="application/ld+json" set:html={JSON.stringify(s)} />)}

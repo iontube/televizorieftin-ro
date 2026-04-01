@@ -1,0 +1,101 @@
+---
+interface Props {
+  name: string;
+  slug: string;
+  affiliate: string;
+  specs: Record<string, string>;
+  review: {
+    paragrafe: string[];
+    pentruCine: string;
+    pro: string[];
+    contra: string[];
+    verdict: string;
+  };
+}
+const { name, slug, affiliate, specs, review } = Astro.props;
+const imgSrc = `/assets/images/products/${slug}.webp`;
+const reviewId = 'recenzie-' + name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/,'');
+---
+<article class="rv" id={reviewId}>
+  <!-- Top band: image + title + specs + CTA -->
+  <div class="rv__top">
+    <div class="rv__photo">
+      <img src={imgSrc} alt={name} width="200" height="200" loading="lazy" />
+    </div>
+    <div class="rv__intro">
+      <h3>{name}</h3>
+      <div class="rv__chips">
+        {Object.entries(specs).map(([k, v]) => (
+          <div class="rv__chip">
+            <span class="rv__chip-k">{k}</span>
+            <span class="rv__chip-v">{v}</span>
+          </div>
+        ))}
+      </div>
+      <a href={`/out/${slug}/`} class="rv__top-cta" rel="nofollow sponsored noopener" target="_blank">Vezi pret &rarr;</a>
+    </div>
+  </div>
+
+  <!-- Body text -->
+  <div class="rv__body">
+    {review.paragrafe.map(p => <p set:html={p} />)}
+  </div>
+
+  <!-- For who -->
+  <div class="rv__for">
+    <div class="rv__for-icon">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M3.5 17.5c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </div>
+    <div>
+      <span class="rv__for-label">Recomandat pentru</span>
+      <p>{review.pentruCine}</p>
+    </div>
+  </div>
+
+  <!-- Pros & Cons -->
+  <div class="rv__judge">
+    <div class="rv__plus">
+      <div class="rv__judge-head">
+        <span class="rv__judge-icon rv__judge-icon--plus">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 3v8M3 7h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </span>
+        Avantaje
+      </div>
+      {review.pro.map((p, i) => (
+        <div class="rv__item rv__item--plus">
+          <span class="rv__item-num">{String(i + 1).padStart(2, '0')}</span>
+          <span>{p}</span>
+        </div>
+      ))}
+    </div>
+    <div class="rv__minus">
+      <div class="rv__judge-head">
+        <span class="rv__judge-icon rv__judge-icon--minus">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </span>
+        Dezavantaje
+      </div>
+      {review.contra.map((c, i) => (
+        <div class="rv__item rv__item--minus">
+          <span class="rv__item-num">{String(i + 1).padStart(2, '0')}</span>
+          <span>{c}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <!-- Verdict -->
+  <div class="rv__verdict">
+    <div class="rv__verdict-deco">&ldquo;</div>
+    <div class="rv__verdict-content">
+      <p>{review.verdict}</p>
+      <span class="rv__verdict-tag">Verdict final</span>
+    </div>
+  </div>
+
+  <!-- Full-width CTA -->
+  <a href={`/out/${slug}/`} class="rv__cta" rel="nofollow sponsored noopener" target="_blank">
+    <span>Vezi pret si disponibilitate</span>
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </a>
+</article>
