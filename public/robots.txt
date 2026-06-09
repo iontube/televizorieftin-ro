@@ -1,4 +1,5 @@
 User-agent: *
+Disallow: /out/
 Allow: /
 
 Sitemap: https://televizorieftin.ro/sitemap.xml
