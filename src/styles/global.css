@@ -379,7 +379,7 @@ button.winner__buy,button.card__buy,button.rv__cta,button.rv__top-cta,button.po_
 .card__price{font-size:1.05rem;font-weight:800;color:var(--ink)}
 .card__price-row s{font-size:.82rem;color:var(--ink-3)}
 .po{display:grid;grid-template-columns:1fr;gap:1.2rem;background:#fff;border:1px solid var(--gray-2);border-radius:var(--r-xl);padding:1.1rem;margin-bottom:1.6rem;box-shadow:var(--shadow)}
-.po__media{background:#fff;border:1px solid var(--gray-2);border-radius:var(--r-lg);display:flex;align-items:center;justify-content:center;padding:1rem;min-height:240px}
+.po__media{background:transparent;border:0;border-radius:var(--r-lg);display:flex;align-items:center;justify-content:center;padding:1rem;min-height:240px}
 .po__media img{max-width:100%;max-height:340px;object-fit:contain;mix-blend-mode:multiply}
 .po__brand{display:inline-block;font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;color:var(--teal-dark);font-weight:800;margin-bottom:.4rem;text-decoration:none}
 a.po__brand:hover{text-decoration:underline}
@@ -390,7 +390,7 @@ a.po__brand:hover{text-decoration:underline}
 .po__off{background:var(--danger);color:#fff;font-weight:700;font-size:.74rem;padding:.15rem .5rem;border-radius:50px}
 .po__stock{color:var(--ink-2);font-size:.85rem;margin-bottom:.85rem}
 a.po__merch{color:var(--teal-dark)}a.po__merch:hover{text-decoration:underline}
-.po__cta{display:inline-block;background:var(--teal-dark);color:#fff;font-weight:700;font-size:.95rem;padding:.8rem 1.4rem;border-radius:50px;box-shadow:var(--shadow-md)}
+.po__cta{display:block;width:100%;max-width:420px;text-align:center;background:var(--teal-dark);color:#fff;font-weight:700;font-size:.95rem;padding:.8rem 1.4rem;border-radius:50px;box-shadow:var(--shadow-md)}
 .po__cta:hover{background:var(--ink)}
 .po__note{font-size:.72rem;color:var(--ink-3);margin-top:.55rem}
 .po-block{margin-bottom:1.7rem}
