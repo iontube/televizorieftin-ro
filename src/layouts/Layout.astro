@@ -2,11 +2,11 @@
 interface Props {
   title: string;
   description: string;
+  modified?: string;   // YYYY-MM-DD of real last content change; omit to emit no modified_time
 }
-const { title, description } = Astro.props;
+const { title, description, modified } = Astro.props;
 const siteUrl = 'https://televizorieftin.ro';
-const now = new Date();
-const isoNow = now.toISOString();
+const modIso = modified ? `${modified}T08:00:00+03:00` : null;
 ---
 <!DOCTYPE html>
 <html lang="ro">
@@ -20,7 +20,7 @@ const isoNow = now.toISOString();
 
   <meta property="og:type" content="article" />
   <meta property="article:published_time" content="2026-04-01T08:00:00+03:00" />
-  <meta property="article:modified_time" content={isoNow} />
+  {modIso && <meta property="article:modified_time" content={modIso} />}
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
   <meta property="og:url" content={siteUrl + Astro.url.pathname} />
@@ -68,6 +68,7 @@ const isoNow = now.toISOString();
     (function(){var c=localStorage.getItem('cookie_consent');if(!c)document.getElementById('cookieBanner').classList.add('show');document.getElementById('cookieAccept').addEventListener('click',function(){localStorage.setItem('cookie_consent','ok');document.getElementById('cookieBanner').classList.remove('show')});document.getElementById('cookieDecline').addEventListener('click',function(){localStorage.setItem('cookie_consent','no');document.getElementById('cookieBanner').classList.remove('show')})})();
     (function(){var b=document.getElementById('toTop');window.addEventListener('scroll',function(){b.classList.toggle('show',window.scrollY>600)});b.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'})})})();
     document.querySelectorAll('.faq__q,.faq-card__q,.faq-card__q').forEach(function(q){q.addEventListener('click',function(){var item=this.parentElement;item.classList.toggle('active');this.setAttribute('aria-expanded',item.classList.contains('active'))})});
+    document.addEventListener('click',function(e){var t=e.target,b=t.closest?t.closest('[data-o]'):null;if(b){e.preventDefault();try{window.open('/out/'+atob(b.getAttribute('data-o'))+'/','_blank','noopener');}catch(_){}}});
     (function(){var burger=document.getElementById('navBurger'),drawer=document.getElementById('navDrawer'),scrim=document.getElementById('navScrim'),close=document.getElementById('navClose');if(!burger||!drawer)return;function open(){drawer.classList.add('open');document.body.style.overflow='hidden'}function shut(){drawer.classList.remove('open');document.body.style.overflow=''}burger.addEventListener('click',open);scrim.addEventListener('click',shut);close.addEventListener('click',shut);drawer.querySelectorAll('.mobile-menu__nav a,.drawer__nav a,.overlay-menu__nav a').forEach(function(a){a.addEventListener('click',shut)})})();
     if(!window.matchMedia('(prefers-reduced-motion:reduce)').matches){var obs=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting){x.target.classList.add('vis');obs.unobserve(x.target)}})},{threshold:.1});document.querySelectorAll('.fade-up').forEach(function(el){obs.observe(el)})}
   </script>

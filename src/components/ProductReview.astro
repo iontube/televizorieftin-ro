@@ -32,7 +32,7 @@ const reviewId = 'recenzie-' + name.toLowerCase().replace(/[^a-z0-9]+/g, '-').re
           </div>
         ))}
       </div>
-      <a href={`/out/${slug}/`} class="rv__top-cta" rel="nofollow sponsored noopener" target="_blank">Vezi pret &rarr;</a>
+      <button class="rv__top-cta" data-o={Buffer.from(slug, 'utf8').toString('base64')} type="button">Vezi pret &rarr;</button>
     </div>
   </div>
 
@@ -94,8 +94,8 @@ const reviewId = 'recenzie-' + name.toLowerCase().replace(/[^a-z0-9]+/g, '-').re
   </div>
 
   <!-- Full-width CTA -->
-  <a href={`/out/${slug}/`} class="rv__cta" rel="nofollow sponsored noopener" target="_blank">
+  <button class="rv__cta" data-o={Buffer.from(slug, 'utf8').toString('base64')} type="button">
     <span>Vezi pret si disponibilitate</span>
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-  </a>
+  </button>
 </article>

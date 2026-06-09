@@ -1,0 +1,103 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
+import products from '../../data/oferte.json';
+
+const MIN_BRAND = 4;
+const brandCount = {};
+for (const x of products) if (x.brandSlug) brandCount[x.brandSlug] = (brandCount[x.brandSlug] || 0) + 1;
+
+export function getStaticPaths() {
+  return products.map((p) => ({ params: { slug: p.slug }, props: { p } }));
+}
+const { p } = Astro.props;
+const money = (n) => Number(n).toLocaleString('ro-RO', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' lei';
+const enc = (s) => Buffer.from(s, 'utf8').toString('base64');
+const year = new Date().getFullYear();
+const title = `${p.name} – preț și păreri ${year} | televizorieftin.ro`;
+const desc = `${p.name} la ${money(p.price)}${p.oldPrice ? ` (redus de la ${money(p.oldPrice)})` : ''} de la ${p.merchantName || p.merchant}. Specificații, păreri și unde îl cumperi cel mai ieftin.`;
+const hasBrandPage = p.brandSlug && brandCount[p.brandSlug] >= MIN_BRAND;
+const related = products.filter((x) => x.band === p.band && x.slug !== p.slug).slice(0, 8);
+const off = p.oldPrice ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
+const schema = [
+  { '@context': 'https://schema.org', '@type': 'Product', name: p.name, image: p.img, ...(p.brand ? { brand: { '@type': 'Brand', name: p.brand } } : {}), description: p.prose.intro.slice(0, 300),
+    offers: { '@type': 'Offer', price: p.price.toFixed(2), priceCurrency: 'RON', availability: 'https://schema.org/InStock', seller: { '@type': 'Organization', name: p.merchant }, url: `https://televizorieftin.ro/tv/${p.slug}/` } },
+  { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: p.prose.faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) },
+  { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Acasă', item: 'https://televizorieftin.ro/' },
+    { '@type': 'ListItem', position: 2, name: 'Televizoare ieftine', item: 'https://televizorieftin.ro/oferte/' },
+    ...(hasBrandPage ? [{ '@type': 'ListItem', position: 3, name: p.brand, item: `https://televizorieftin.ro/brand/${p.brandSlug}/` }] : []),
+    { '@type': 'ListItem', position: hasBrandPage ? 4 : 3, name: p.name, item: `https://televizorieftin.ro/tv/${p.slug}/` },
+  ] },
+];
+---
+<Layout title={title} description={desc} modified={p.modified}>
+  <Nav />
+  <section class="po-sec">
+    <div class="wrap">
+      <nav class="crumb"><a href="/">Acasă</a> › <a href="/oferte/">Televizoare ieftine</a> ›{hasBrandPage && <> <a href={`/brand/${p.brandSlug}/`}>{p.brand}</a> ›</>} <span>{p.name}</span></nav>
+
+      <article class="po">
+        <div class="po__media"><img src={p.img} alt={p.name} width="440" height="330" fetchpriority="high" decoding="async" /></div>
+        <div class="po__info">
+          {p.brand && (hasBrandPage ? <a class="po__brand" href={`/brand/${p.brandSlug}/`}>{p.brand}</a> : <span class="po__brand">{p.brand}</span>)}
+          <h1 class="po__h1">{p.name}</h1>
+          <div class="po__price"><span class="po__now">{money(p.price)}</span>{p.oldPrice && <s>{money(p.oldPrice)}</s>}{off > 0 && <span class="po__off">-{off}%</span>}</div>
+          <p class="po__stock">Disponibil la <a class="po__merch" href={`/magazin/${p.merchantSlug}/`}><strong>{p.merchantName || p.merchant}</strong></a></p>
+          <button class="po__cta" data-o={enc(p.slug)} type="button">Vezi oferta la {p.merchantName || p.merchant} →</button>
+          <p class="po__note">Preț actualizat periodic · link afiliat</p>
+        </div>
+      </article>
+
+      <section class="po-block">
+        <span class="tag">Despre produs</span>
+        <h2>Despre {p.name}</h2>
+        <div class="article-box">
+          <p>{p.prose.intro}</p>
+          {p.prose.guide.map((g) => <p>{g}</p>)}
+        </div>
+      </section>
+
+      <section class="po-block">
+        <span class="tag">Specificații</span>
+        <h2>Specificații {p.name}</h2>
+        <div class="article-box"><table class="spec-tbl"><tbody>{Object.entries(p.specs).map(([k, v]) => <tr><th>{k}</th><td>{v}</td></tr>)}</tbody></table></div>
+      </section>
+
+      <section class="po-block">
+        <span class="tag">Întrebări frecvente</span>
+        <h2>Întrebări frecvente despre {p.name}</h2>
+        <div class="faq-grid">{p.prose.faq.map((f, i) => (
+          <div class="faq-card">
+            <button class="faq-card__q" aria-expanded="false">
+              <span class="faq-card__num">{String(i + 1).padStart(2, '0')}</span>
+              <span class="faq-card__text">{f.q}</span>
+              <span class="faq-card__icon"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path class="faq-card__arrow" d="M5 7l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            </button>
+            <div class="faq-card__a">{f.a}</div>
+          </div>
+        ))}</div>
+      </section>
+
+      {related.length > 0 && (
+        <section class="po-block">
+          <span class="tag">Alternative</span>
+          <h2>Alte televizoare ieftine similare</h2>
+          <div class="grid">{related.map((r) => (
+            <article class="card">
+              <a class="card__img" href={`/tv/${r.slug}/`}><img src={r.img} alt={r.name} width="400" height="300" loading="lazy" decoding="async" /></a>
+              <div class="card__body">
+                <a href={`/tv/${r.slug}/`}><h3 class="card__name">{r.name}</h3></a>
+                <div class="card__specs"><span class="card__spec">{money(r.price)}</span></div>
+              </div>
+              <div class="card__actions"><a href={`/tv/${r.slug}/`} class="card__buy">Vezi detalii</a></div>
+            </article>
+          ))}</div>
+        </section>
+      )}
+    </div>
+  </section>
+  <Footer />
+  <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+</Layout>

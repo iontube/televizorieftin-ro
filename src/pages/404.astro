@@ -1,0 +1,17 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+---
+<Layout title="Pagină negăsită (404) | televizorieftin.ro" description="Pagina căutată nu există sau a fost mutată.">
+  <Nav />
+  <section class="po-sec">
+    <div class="wrap" style="text-align:center;max-width:640px;margin:0 auto">
+      <span class="tag">Eroare 404</span>
+      <h1>Pagina nu există</h1>
+      <p class="sec-sub" style="margin:0 auto 1.6rem">Pagina căutată nu mai există sau adresa este greșită. Poate televizorul căutat nu mai este disponibil în magazinele partenere.</p>
+      <p><a href="/oferte/" class="pg">Vezi toate televizoarele ieftine →</a> &nbsp; <a href="/" class="pg">Acasă</a></p>
+    </div>
+  </section>
+  <Footer />
+</Layout>

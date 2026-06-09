@@ -6,17 +6,23 @@ import ProductReview from '../components/ProductReview.astro';
 import SchemaMarkup from '../components/SchemaMarkup.astro';
 import Footer from '../components/Footer.astro';
 import products from '../data/products.json';
+import oferte from '../data/oferte.json';
 
 const title = 'Ce televizor ieftin sa cumpar in 2026: 15 modele comparate si testate';
 const description = 'Am comparat 15 televizoare ieftine intre 500-1400 lei disponibile in Romania. Samsung, LG, Xiaomi, TCL si METZ de 32 si 43 inch cu Smart TV, 4K, LED si QLED. Recenzie detaliata pentru fiecare model.';
 const allProducts = products.televizoare || [];
 const count = allProducts.length;
-const now = new Date();
-const updated = now.toLocaleDateString('ro-RO', { day: 'numeric', month: 'long', year: 'numeric' });
-const isoDate = now.toISOString().split('T')[0];
+const ofMoney = (n) => Number(n).toLocaleString('ro-RO', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' lei';
+const ofTotal = oferte.length;
+const topOferte = [...oferte].filter((p) => p.oldPrice).sort((a, b) => (1 - b.price / b.oldPrice) - (1 - a.price / a.oldPrice)).slice(0, 6);
+while (topOferte.length < 6 && oferte[topOferte.length]) topOferte.push(oferte[topOferte.length]);
+// honest "Actualizat" = most recent REAL data change among the products shown (not build time)
+const mainModified = topOferte.reduce((m, p) => (p.modified && p.modified > m ? p.modified : m), '2026-04-01');
+const updated = new Date(mainModified + 'T08:00:00+03:00').toLocaleDateString('ro-RO', { day: 'numeric', month: 'long', year: 'numeric' });
+const isoDate = mainModified;
 ---
-<Layout title={title} description={description}>
-  <SchemaMarkup />
+<Layout title={title} description={description} modified={mainModified}>
+  <SchemaMarkup modified={mainModified} />
   <Nav />
 
   <section class="hero" id="top">
@@ -73,7 +79,7 @@ const isoDate = now.toISOString().split('T')[0];
                 ))}
               </div>
               <div class="winner__actions">
-                <a href={`/out/${p.slug}/`} class="winner__buy" rel="nofollow sponsored noopener" target="_blank">Vezi Oferta</a>
+                <button class="winner__buy" data-o={Buffer.from(p.slug, 'utf8').toString('base64')} type="button">Vezi Oferta</button>
                 <a href={`#recenzie-${p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '')}`} class="winner__review">Recenzie &darr;</a>
               </div>
             </div>
@@ -82,6 +88,31 @@ const isoDate = now.toISOString().split('T')[0];
       </div>
     </div>
   </section>
+
+  {ofTotal > 0 && (
+  <section class="sec--gray">
+    <div class="wrap">
+      <span class="tag">Oferte actualizate</span>
+      <h2>Cele mai bune oferte la televizoare ieftine</h2>
+      <p class="sec-sub">{ofTotal} de televizoare sub 1500 lei din magazinele partenere, cu prețuri actualizate periodic. Mai jos câteva dintre cele cu cea mai mare reducere acum.</p>
+      <div class="grid">
+        {topOferte.map((p) => (
+          <article class="card">
+            {p.oldPrice && <span class="card__badge card__badge--top">-{Math.round((1 - p.price / p.oldPrice) * 100)}%</span>}
+            <a class="card__img" href={`/tv/${p.slug}/`} aria-label={p.name}><img src={p.img} alt={p.name} width="400" height="300" loading="lazy" decoding="async" /></a>
+            <div class="card__body">
+              <a href={`/tv/${p.slug}/`}><h3 class="card__name">{p.name}</h3></a>
+              <div class="card__specs">{Object.values(p.specs).slice(1, 4).map((v) => <span class="card__spec">{v}</span>)}</div>
+              <div class="card__price-row"><span class="card__price">{ofMoney(p.price)}</span>{p.oldPrice && <s>{ofMoney(p.oldPrice)}</s>}</div>
+            </div>
+            <div class="card__actions"><a href={`/tv/${p.slug}/`} class="card__buy">Vezi detalii</a></div>
+          </article>
+        ))}
+      </div>
+      <div style="text-align:center;margin-top:1.6rem"><a href="/oferte/" class="btn btn--white">Vezi toate cele {ofTotal} de televizoare ieftine →</a></div>
+    </div>
+  </section>
+  )}
 
   <section id="televizoare" class="sec--gray">
     <div class="wrap">

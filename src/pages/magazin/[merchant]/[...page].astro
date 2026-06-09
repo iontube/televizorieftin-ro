@@ -1,0 +1,65 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import Nav from '../../../components/Nav.astro';
+import Footer from '../../../components/Footer.astro';
+import products from '../../../data/oferte.json';
+
+export function getStaticPaths() {
+  const PAGE_SIZE = 48;
+  const byM = {};
+  for (const p of products) if (p.merchantSlug) (byM[p.merchantSlug] ||= []).push(p);
+  const paths = [];
+  for (const [mslug, items] of Object.entries(byM)) {
+    items.sort((a, b) => a.price - b.price);
+    const last = Math.ceil(items.length / PAGE_SIZE);
+    for (let pg = 1; pg <= last; pg++) {
+      paths.push({ params: { merchant: mslug, page: pg === 1 ? undefined : String(pg) },
+        props: { mName: items[0].merchantName, mslug, items: items.slice((pg - 1) * PAGE_SIZE, pg * PAGE_SIZE), currentPage: pg, lastPage: last, totalCount: items.length } });
+    }
+  }
+  return paths;
+}
+
+const { mName, mslug, items, currentPage, lastPage, totalCount } = Astro.props;
+const money = (n) => Number(n).toLocaleString('ro-RO', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' lei';
+const base = `/magazin/${mslug}/`;
+const pageMod = items.reduce((m, p) => (p.modified && p.modified > m ? p.modified : m), '2026-04-01');
+const title = currentPage === 1 ? `Televizoare ieftine la ${mName}: ${totalCount} oferte sub 1500 lei | televizorieftin.ro` : `Televizoare ieftine la ${mName} – pagina ${currentPage} | televizorieftin.ro`;
+const desc = `Toate televizoarele ieftine disponibile la ${mName}: ${totalCount} de modele sub 1500 lei, LED, QLED, HD și 4K, cu prețuri actualizate.`;
+---
+<Layout title={title} description={desc} modified={pageMod}>
+  <Nav />
+  <section class="po-sec">
+    <div class="wrap">
+      <nav class="crumb"><a href="/">Acasă</a> › <a href="/oferte/">Televizoare ieftine</a> › <span>{mName}</span></nav>
+      <span class="tag">Magazin</span>
+      <h1>Televizoare ieftine la {mName}</h1>
+      <p class="sec-sub"><strong>{totalCount}</strong> de televizoare ieftine la {mName}, cu prețuri actualizate periodic.{lastPage > 1 ? ` Pagina ${currentPage} din ${lastPage}.` : ''}</p>
+
+      <div class="grid">
+        {items.map((p) => (
+          <article class="card">
+            {p.oldPrice && <span class="card__badge card__badge--top">-{Math.round((1 - p.price / p.oldPrice) * 100)}%</span>}
+            <a class="card__img" href={`/tv/${p.slug}/`} aria-label={p.name}><img src={p.img} alt={p.name} width="400" height="300" loading="lazy" decoding="async" /></a>
+            <div class="card__body">
+              <a href={`/tv/${p.slug}/`}><h3 class="card__name">{p.name}</h3></a>
+              <div class="card__specs">{Object.values(p.specs).slice(1, 4).map((v) => <span class="card__spec">{v}</span>)}</div>
+              <div class="card__price-row"><span class="card__price">{money(p.price)}</span>{p.oldPrice && <s>{money(p.oldPrice)}</s>}</div>
+            </div>
+            <div class="card__actions"><a href={`/tv/${p.slug}/`} class="card__buy">Vezi detalii</a></div>
+          </article>
+        ))}
+      </div>
+
+      {lastPage > 1 && (
+        <nav class="pager" aria-label="Paginare">
+          {currentPage > 1 ? <a class="pg" href={currentPage === 2 ? base : `${base}${currentPage - 1}/`}>← Anterioarele</a> : <span class="pg pg--off">← Anterioarele</span>}
+          <span class="pg-now">Pagina {currentPage} / {lastPage}</span>
+          {currentPage < lastPage ? <a class="pg" href={`${base}${currentPage + 1}/`}>Următoarele →</a> : <span class="pg pg--off">Următoarele →</span>}
+        </nav>
+      )}
+      <p class="po-back"><a href="/oferte/">← Vezi toate televizoarele ieftine</a></p>
+    </div>
+  </section>
+  <Footer />
+</Layout>

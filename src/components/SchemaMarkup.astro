@@ -2,8 +2,9 @@
 import products from '../data/products.json';
 const allProducts = products.televizoare || [];
 const count = allProducts.length;
-const now = new Date();
-const isoDate = now.toISOString().split('T')[0];
+interface Props { modified?: string }
+const { modified } = Astro.props;
+const isoDate = modified || '2026-04-01';
 const siteUrl = 'https://televizorieftin.ro';
 
 const faqItems = [

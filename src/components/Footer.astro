@@ -1,7 +1,5 @@
 ---
-const now = new Date();
-const year = now.getFullYear();
-const updated = now.toLocaleDateString('ro-RO', { day: 'numeric', month: 'long', year: 'numeric' });
+const year = new Date().getFullYear();
 const legalLinks = [
   { href: '/politica-confidentialitate/', label: 'Confidentialitate' },
   { href: '/politica-cookies/', label: 'Cookies' },
@@ -19,7 +17,7 @@ const legalLinks = [
       </nav>
     </div>
     <div class="footer__bottom">
-      <span>&copy; {year} televizorieftin.ro &middot; Actualizat {updated}</span>
+      <span>&copy; {year} televizorieftin.ro</span>
     </div>
     <p class="footer__disclaimer">
       Acest site contine link-uri de afiliere. Daca achizitionezi un produs prin link-urile noastre, putem primi un comision fara niciun cost suplimentar pentru tine. Preturile sunt orientative, verificati pretul final pe site-ul magazinului.

@@ -28,3 +28,13 @@ skills-lock.json
 
 # lighthouse
 lighthouse-*.json
+
+# server-generated (rebuilt nightly from the catalog DB — never commit)
+.cache/
+src/data/oferte.json
+functions/
+public/sitemap.xml
+public/_redirects
+
+# server-only operational script (contains CF Global Key — never commit to a public repo)
+deploy.sh

@@ -4,12 +4,12 @@
   "description": "",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "node scripts/generate-redirects.mjs && node scripts/gen-sitemap.mjs && astro build",
     "preview": "astro preview"
   },
   "type": "module",
   "dependencies": {
-    "astro": "^6.1.2",
+    "astro": "^5.7.0",
     "sharp": "^0.34.5"
   }
 }
