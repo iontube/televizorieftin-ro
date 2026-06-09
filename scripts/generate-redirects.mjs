@@ -31,6 +31,8 @@ console.log(`_redirects: ${main.length} main /out + ${dn} dropped-product 301s (
 let recs = [];
 try { recs = JSON.parse(readFileSync(fileURLToPath(new URL('../src/data/oferte.json', import.meta.url)), 'utf-8')); } catch { /* no recs yet */ }
 const map = {};
+// curated main /out too — the Function intercepts ALL /out/*, so curated slugs MUST be in the MAP (else fall to listing)
+for (const p of main) if (p.affiliate && p.slug && !map[p.slug]) map[p.slug] = p.affiliate;
 for (const p of recs) if (p.affiliate && p.slug && !map[p.slug]) map[p.slug] = p.affiliate;
 
 mkdirSync(fileURLToPath(new URL('../functions/out', import.meta.url)), { recursive: true });
