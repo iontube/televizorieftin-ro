@@ -127,6 +127,37 @@ const isoDate = mainModified;
     </div>
   </section>
 
+  <section id="comparatie" class="comparatie">
+    <div class="wrap">
+      <span class="tag">Comparatie rapida</span>
+      <h2>Tabel comparativ: cele mai bune televizoare ieftine</h2>
+      <p class="sec-sub">Toate cele {count} modele testate, una langa alta. Diagonala, rezolutie, tip de panou si platforma Smart TV, ca sa le compari dintr-o privire si sa alegi rapid televizorul ieftin potrivit.</p>
+      <div class="cmp-wrap">
+        <table class="cmp">
+          <thead>
+            <tr><th>Model</th><th>Diagonala</th><th>Rezolutie</th><th>Panou</th><th>Smart TV</th><th><span class="sr-only">Oferta</span></th></tr>
+          </thead>
+          <tbody>
+            {allProducts.map((p: any, i: number) => {
+              const anchor = p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '');
+              return (
+                <tr>
+                  <td data-l="Model"><a href={`#recenzie-${anchor}`} class="cmp__name">{p.name.replace(/^Televizor\s+/i, '')}</a>{i === 0 && <span class="cmp__best">Best Buy</span>}</td>
+                  <td data-l="Diagonala">{p.specs.diagonala}</td>
+                  <td data-l="Rezolutie">{p.specs.rezolutie}</td>
+                  <td data-l="Panou">{p.specs.tip}</td>
+                  <td data-l="Smart TV">{String(p.specs.smart).replace(/^Da,\s*/i, '')}</td>
+                  <td data-l="" class="cmp__act"><button class="cmp__buy" data-o={Buffer.from(p.slug, 'utf8').toString('base64')} type="button">Vezi oferta</button></td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <p class="cmp-note">Preturile televizoarelor ieftine se schimba des. Apasa <strong>Vezi oferta</strong> pentru pretul actual din magazin. Recenzia completa a fiecarui model este mai jos.</p>
+    </div>
+  </section>
+
   <section>
     <div class="wrap">
       <span class="tag">Recenzii detaliate</span>
@@ -228,7 +259,7 @@ const isoDate = mainModified;
       <div class="faq-header">
         <span class="tag">Intrebari frecvente</span>
         <h2>Raspunsuri la ce conteaza</h2>
-        <p class="sec-sub">8 intrebari pe care le primim cel mai des de la cumparatorii de televizoare ieftine.</p>
+        <p class="sec-sub">10 intrebari pe care le primim cel mai des de la cumparatorii de televizoare ieftine.</p>
       </div>
       <div class="faq-grid">
         {[
@@ -240,6 +271,8 @@ const isoDate = mainModified;
           { q: 'Cat consuma un televizor ieftin?', a: 'Un TV LED de 43 inch consuma 30-60W, adica 5-10 lei pe luna la 5 ore/zi de utilizare.' },
           { q: 'Cand e cel mai bun moment sa cumpar?', a: 'Black Friday (noiembrie) si iarna (ianuarie-februarie) cand magazinele lichideaza stocurile.' },
           { q: 'Ce conexiuni trebuie sa aiba?', a: 'Minim 2 porturi HDMI, 1 USB, Wi-Fi integrat si Bluetooth. Verifica sa aiba HDMI ARC pentru soundbar.' },
+          { q: 'Care sunt cele mai bune televizoare ieftine in 2026?', a: 'Pentru sufragerie, Samsung 43U8092 (4K, Tizen) e cea mai sigura alegere sub 1400 lei. Pentru dormitor sau bucatarie, Xiaomi QLED A Pro (QLED, Google TV) ofera cele mai bune culori la 32 inch. Vezi tabelul comparativ cu toate cele 15 modele mai sus.' },
+          { q: 'Exista un smart TV ieftin si bun?', a: 'Da. Un smart TV ieftin si bun costa intre 700 si 1200 lei si are Google TV sau Tizen, minim 2 porturi HDMI, Wi-Fi si Bluetooth. Modelele cu panou QLED (Xiaomi, TCL, METZ) dau cele mai bune culori la acest pret.' },
         ].map((item, i) => (
           <div class="faq-card">
             <button class="faq-card__q" aria-expanded="false">
@@ -267,4 +300,35 @@ const isoDate = mainModified;
   </section>
 
   <Footer />
+
+  <style>
+    .comparatie{background:var(--gray-1)}
+    .cmp-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--gray-3);border-radius:var(--r-lg);background:#fff}
+    .cmp{width:100%;border-collapse:collapse;font-size:.95rem;min-width:640px}
+    .cmp thead th{background:var(--teal);color:#fff;text-align:left;padding:.7rem .85rem;font-weight:700;font-size:.9rem;white-space:nowrap}
+    .cmp tbody td{padding:.7rem .85rem;border-top:1px solid var(--gray-2);color:var(--ink-2);vertical-align:middle}
+    .cmp tbody tr:nth-child(even){background:var(--gray-1)}
+    .cmp__name{font-weight:700;color:var(--ink);text-decoration:none}
+    .cmp__name:hover{color:var(--teal);text-decoration:underline}
+    .cmp__best{display:inline-block;margin-left:.4rem;background:var(--teal-bg);color:var(--teal-dark);font-size:.68rem;font-weight:700;padding:.1rem .4rem;border-radius:var(--r);vertical-align:middle}
+    .cmp__act{text-align:right}
+    .cmp__buy{background:var(--teal);color:#fff;border:0;border-radius:var(--r);padding:.45rem .8rem;font-weight:700;font-size:.85rem;cursor:pointer;white-space:nowrap}
+    .cmp__buy:hover{background:var(--teal-dark)}
+    .cmp-note{font-size:.85rem;color:var(--ink-3);margin-top:.9rem}
+    .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+    @media(max-width:640px){
+      .cmp-wrap{overflow:visible;border:0;background:transparent}
+      .cmp{min-width:0;font-size:.9rem}
+      .cmp thead{display:none}
+      .cmp tbody,.cmp tr,.cmp td{display:block}
+      .cmp tr{background:#fff!important;border:1px solid var(--gray-3);border-radius:var(--r-lg);margin-bottom:.8rem;padding:.3rem .2rem;box-shadow:var(--shadow)}
+      .cmp tbody td{border:0;padding:.4rem .85rem;display:flex;justify-content:space-between;gap:1rem;align-items:center}
+      .cmp td[data-l]:not([data-l=""]):before{content:attr(data-l);font-weight:700;color:var(--ink-3);font-size:.8rem}
+      .cmp td[data-l="Model"]{border-bottom:1px solid var(--gray-2);padding-bottom:.55rem;margin-bottom:.15rem}
+      .cmp td[data-l="Model"]:before{display:none}
+      .cmp__name{font-size:1rem}
+      .cmp__act{padding-top:.5rem!important}
+      .cmp__buy{width:100%;padding:.6rem}
+    }
+  </style>
 </Layout>
