@@ -1,4 +1,11 @@
 ---
+import { getCollection } from 'astro:content';
+import { LANDINGS, LANDING_GROUPS } from '../data/landings.mjs';
+const published = new Set((await getCollection('landings')).map((e) => e.slug));
+const groups = LANDING_GROUPS
+  .map((g) => ({ group: g, items: LANDINGS.filter((l) => l.group === g && published.has(l.slug)) }))
+  .filter((g) => g.items.length > 0);
+const hasLandings = groups.length > 0;
 ---
 <header class="nav">
   <div class="nav__accent"></div>
@@ -6,7 +13,19 @@
     <a href="/" class="nav__logo"><img src="/assets/images/logo-televizorieftin.webp" alt="Televizor Ieftin" height="38" width="70" /></a>
     <div class="nav__center">
       <a href="/oferte/" class="nav__link"><span>Toate ofertele</span></a>
-      <a href="/#televizoare" class="nav__link"><span>Televizoare</span></a>
+      {hasLandings && (
+        <div class="nav__dd">
+          <button class="nav__link nav__dd-btn" type="button" aria-haspopup="true"><span>Televizoare</span><svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <div class="nav__mega">
+            {groups.map((g) => (
+              <div class="nav__mega-col">
+                <p class="nav__mega-h">{g.group}</p>
+                {g.items.map((l) => <a href={`/${l.slug}/`}>{l.navLabel}</a>)}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       <a href="/#recomandari" class="nav__link"><span>Cum alegi</span></a>
       <a href="/#faq" class="nav__link"><span>FAQ</span></a>
     </div>
@@ -21,7 +40,7 @@
   </div>
 </header>
 
-<!-- Full-screen overlay menu -->
+<!-- Full-screen overlay menu (mobile) -->
 <div class="overlay-menu" id="navDrawer">
   <div class="overlay-menu__bg" id="navScrim"></div>
   <div class="overlay-menu__content">
@@ -30,11 +49,45 @@
     </button>
     <nav class="overlay-menu__nav">
       <a href="/oferte/"><span class="overlay-menu__num">01</span>Toate ofertele</a>
-      <a href="/#top-televizoare"><span class="overlay-menu__num">02</span>Top 3</a>
-      <a href="/#televizoare"><span class="overlay-menu__num">03</span>Televizoare</a>
-      <a href="/#recomandari"><span class="overlay-menu__num">04</span>Cum alegi</a>
-      <a href="/#faq"><span class="overlay-menu__num">05</span>Intrebari</a>
+      <a href="/#recomandari"><span class="overlay-menu__num">02</span>Cum alegi</a>
+      <a href="/#faq"><span class="overlay-menu__num">03</span>Intrebari</a>
     </nav>
+    {hasLandings && (
+      <div class="overlay-menu__tv">
+        <p class="overlay-menu__tv-title">Televizoare ieftine</p>
+        {groups.map((g) => (
+          <div class="overlay-menu__tv-grp">
+            <span class="overlay-menu__tv-h">{g.group}</span>
+            <div class="overlay-menu__tv-links">
+              {g.items.map((l) => <a href={`/${l.slug}/`}>{l.navLabel}</a>)}
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
     <div class="overlay-menu__foot">televizorieftin.ro</div>
   </div>
 </div>
+
+<style>
+  /* Desktop mega-dropdown */
+  .nav__dd{position:relative;display:flex;align-items:center}
+  /* butonul mosteneste .nav__link (font-size .78rem, weight 600, culoare) — resetam DOAR aspectul de buton */
+  .nav__dd-btn{background:none;border:0;cursor:pointer;font-family:inherit}
+  .nav__dd-btn svg{transition:transform .2s}
+  .nav__mega{position:absolute;top:calc(100% + 10px);left:50%;transform:translateX(-50%) translateY(6px);background:#fff;border:1px solid var(--gray-3);border-radius:var(--r-lg);box-shadow:var(--shadow-lg);padding:1rem 1.1rem;display:grid;grid-template-columns:repeat(2,minmax(140px,1fr));gap:.4rem 1.6rem;opacity:0;visibility:hidden;transition:all .18s;z-index:1100;min-width:340px}
+  .nav__dd:hover .nav__mega,.nav__dd:focus-within .nav__mega{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
+  .nav__dd:hover .nav__dd-btn svg{transform:rotate(180deg)}
+  .nav__mega-h{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin:.3rem 0 .35rem}
+  .nav__mega-col a{display:block;padding:.28rem 0;color:var(--ink-2);text-decoration:none;font-size:.9rem;font-weight:600}
+  .nav__mega-col a:hover{color:var(--teal-dark)}
+
+  /* Mobile overlay TV section (fond ALB) — aliniat cu restul itemilor (padding 1.5rem) */
+  .overlay-menu__tv{padding:1.3rem 1.5rem 1rem}
+  .overlay-menu__tv-title{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--teal-dark);font-weight:700;margin:0 0 .9rem}
+  .overlay-menu__tv-grp{margin-bottom:.9rem}
+  .overlay-menu__tv-h{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);margin-bottom:.4rem;font-weight:700}
+  .overlay-menu__tv-links{display:flex;flex-wrap:wrap;gap:.4rem}
+  .overlay-menu__tv-links a{color:var(--ink-2);text-decoration:none;font-size:.9rem;font-weight:600;background:var(--gray-2);padding:.4rem .8rem;border-radius:var(--r)}
+  .overlay-menu__tv-links a:active{background:var(--teal);color:#fff}
+</style>

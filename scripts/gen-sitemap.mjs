@@ -1,5 +1,5 @@
 // Full sitemap: static + oferte pagination + brand + magazin + all cheap-TV product pages, with images.
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const SITE = 'https://televizorieftin.ro';
@@ -13,8 +13,12 @@ const allMod = recs.length ? maxMod(recs) : FIXED;
 const xe = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const urls = [];
 // lastmod = REAL content change, never build time (feedback-lastmod-pattern); img -> Google Images extension
-const add = (loc, pri = '0.6', lastmod = allMod, img = null) => urls.push(
-  `  <url><loc>${SITE}${loc}</loc><lastmod>${lastmod}</lastmod><priority>${pri}</priority>${img ? `<image:image><image:loc>${xe(img)}</image:loc></image:image>` : ''}</url>`);
+const imgUrl = (u) => (String(u).startsWith('http') ? u : SITE + u);
+const add = (loc, pri = '0.6', lastmod = allMod, imgs = null) => {
+  const arr = (Array.isArray(imgs) ? imgs : (imgs ? [imgs] : [])).filter(Boolean);
+  const imgXml = arr.map((u) => `<image:image><image:loc>${xe(imgUrl(u))}</image:loc></image:image>`).join('');
+  urls.push(`  <url><loc>${SITE}${loc}</loc><lastmod>${lastmod}</lastmod><priority>${pri}</priority>${imgXml}</url>`);
+};
 
 add('/', '1.0', allMod);
 add('/oferte/', '0.9', allMod);
@@ -41,6 +45,29 @@ for (const [m, items] of Object.entries(byM)) {
   for (let i = 2; i <= lm; i++) add(`/magazin/${m}/${i}/`, '0.4', mm);
 }
 for (const p of recs) add(`/tv/${p.slug}/`, '0.6', p.modified || allMod, p.img);
+
+// Landing pages (articole categorii) cu TOATE imaginile lor: hero + inline editoriale + poze produse featured.
+const landingDir = fileURLToPath(new URL('../src/content/landings', import.meta.url));
+const emagPath = fileURLToPath(new URL('../src/data/emag-tvs.json', import.meta.url));
+const emag = existsSync(emagPath) ? JSON.parse(readFileSync(emagPath, 'utf-8')) : [];
+let REVIEWS = {};
+try { ({ REVIEWS } = await import(fileURLToPath(new URL('../src/data/landing-reviews.mjs', import.meta.url)))); } catch { /* none */ }
+if (existsSync(landingDir)) {
+  for (const file of readdirSync(landingDir).filter((f) => f.endsWith('.md'))) {
+    const slug = file.replace(/\.md$/, '');
+    const t = readFileSync(`${landingDir}/${file}`, 'utf-8');
+    const heroM = t.match(/^hero:\s*"?([^"\n]+?)"?\s*$/m);
+    const hero = heroM ? '/assets/images/landings/' + heroM[1].trim() : null;
+    const upM = t.match(/^updated:\s*"?([0-9-]+)"?/m);
+    const lastmod = upM ? upM[1] : FIXED;
+    const inline = [...t.matchAll(/!\[[^\]]*\]\((\/assets\/images\/landings\/[^)]+)\)/g)].map((m) => m[1]);
+    const prodImgs = (REVIEWS[slug] || [])
+      .map((r) => emag.find((x) => x.name.includes(r.match)))
+      .filter(Boolean).map((p) => p.img);
+    const imgs = [...new Set([hero, ...inline, ...prodImgs].filter(Boolean))];
+    add(`/${slug}/`, '0.8', lastmod, imgs);
+  }
+}
 
 const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${urls.join('\n')}\n</urlset>\n`;
 writeFileSync(fileURLToPath(new URL('../public/sitemap.xml', import.meta.url)), xml);

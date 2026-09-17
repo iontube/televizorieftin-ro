@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "televizorieftin — eMAG collector",
+  "version": "1.0.0",
+  "description": "Extrage televizoare de pe eMAG (pret, rating, imagini, specs) si le trimite la colectorul televizorieftin. Filtru pe nr. recenzii.",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "*://www.emag.ro/*",
+    "https://tvieftin-emag-collector.flat-scene-36ff.workers.dev/*"
+  ],
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [
+    {
+      "matches": ["*://www.emag.ro/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": { "default_popup": "popup.html", "default_title": "televizorieftin eMAG collector" }
+}

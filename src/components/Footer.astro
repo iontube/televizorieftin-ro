@@ -1,4 +1,8 @@
 ---
+import { getCollection } from 'astro:content';
+import { LANDINGS } from '../data/landings.mjs';
+const published = new Set((await getCollection('landings')).map((e) => e.slug));
+const cats = LANDINGS.filter((l) => published.has(l.slug));
 const year = new Date().getFullYear();
 const legalLinks = [
   { href: '/politica-confidentialitate/', label: 'Confidentialitate' },
@@ -10,10 +14,19 @@ const legalLinks = [
 ---
 <div class="footer">
   <div class="container">
+    {cats.length > 0 && (
+      <nav class="footer__cats" aria-label="Categorii de televizoare">
+        <span class="footer__cats-h">Televizoare ieftine dupa categorie</span>
+        <div class="footer__cats-links">
+          {cats.map((l) => <a href={`/${l.slug}/`}>{l.label}</a>)}
+        </div>
+      </nav>
+    )}
     <div class="footer__inner">
-      <nav class="footer__links" aria-label="Pagini legale">
+      <nav class="footer__links" aria-label="Pagini">
         <a href="/despre-noi/">Despre noi</a>
-        {legalLinks.map(l => <a href={l.href} rel="nofollow">{l.label}</a>)}
+        <a href="/redactia/">Redactia</a>
+        {legalLinks.map((l) => <a href={l.href} rel="nofollow">{l.label}</a>)}
       </nav>
     </div>
     <div class="footer__bottom">
@@ -24,3 +37,11 @@ const legalLinks = [
     </p>
   </div>
 </div>
+
+<style>
+  .footer__cats{max-width:1080px;margin:0 auto 1.4rem;padding:0 1.5rem 1.4rem;border-bottom:1px solid rgba(255,255,255,.1)}
+  .footer__cats-h{display:block;font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:rgba(255,255,255,.5);font-weight:700;margin-bottom:.7rem}
+  .footer__cats-links{display:flex;flex-wrap:wrap;gap:.4rem .5rem}
+  .footer__cats-links a{color:rgba(255,255,255,.85);text-decoration:none;font-size:.85rem;font-weight:600;background:rgba(255,255,255,.07);padding:.3rem .65rem;border-radius:var(--r)}
+  .footer__cats-links a:hover{background:var(--teal);color:#fff}
+</style>

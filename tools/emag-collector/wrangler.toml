@@ -1,0 +1,8 @@
+name = "tvieftin-emag-collector"
+main = "worker.js"
+compatibility_date = "2024-11-01"
+workers_dev = true
+
+[[kv_namespaces]]
+binding = "EMAG"
+id = "5c657d18aa2843bebfa9dad175bb0522"

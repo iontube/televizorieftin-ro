@@ -38,3 +38,4 @@ public/_redirects
 
 # server-only operational script (contains CF Global Key — never commit to a public repo)
 deploy.sh
+*.log

@@ -1,0 +1,310 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import emag from '../data/emag-tvs.json';
+import { LANDINGS, H_SUFFIX } from '../data/landings.mjs';
+import { REVIEWS } from '../data/landing-reviews.mjs';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('landings');
+  return entries.map((e) => ({ params: { landing: e.slug }, props: { entry: e } }));
+}
+const { entry } = Astro.props;
+const d = entry.data;
+const slug = entry.slug;
+const { Content } = await entry.render();
+const cfg = LANDINGS.find((l) => l.slug === slug) || { match: () => false, label: d.h1, sort: 'value' };
+const b64 = (s) => Buffer.from(s, 'utf8').toString('base64');
+const ofMoney = (n) => Number(n).toLocaleString('ro-RO') + ' lei';
+const stars = (r) => (r ? r.toFixed(2).replace('.', ',') : '');
+const cleanName = (n) => n.replace(/^Televizor\s+/i, '').replace(/,.*/, '').trim();
+const shortLabel = cfg.label.replace(/\(.*/, '').trim();
+const hSuffix = H_SUFFIX[slug] || ('de ' + shortLabel);
+const splitParas = (t) => {
+  const s = (t.match(/[^.]+\./g) || [t]).map((x) => x.trim());
+  if (s.length < 3) return [t];
+  const mid = Math.ceil(s.length / 2);
+  return [s.slice(0, mid).join(' '), s.slice(mid).join(' ')];
+};
+const mdBold = (s) => s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+let products = emag.filter((p) => { try { return cfg.match(p); } catch { return false; } });
+const sorters = {
+  value: (a, b) => (b.rating || 0) - (a.rating || 0) || a.price - b.price,
+  sizeAsc: (a, b) => a.inch - b.inch || (b.rating || 0) - (a.rating || 0),
+  sizeDesc: (a, b) => b.inch - a.inch || (b.rating || 0) - (a.rating || 0),
+};
+products = products.sort(sorters[cfg.sort] || sorters.value);
+
+const reviews = (REVIEWS[slug] || [])
+  .map((r) => ({ ...r, p: emag.find((x) => x.name.includes(r.match)) }))
+  .filter((r) => r.p);
+const featured = new Set(reviews.map((r) => r.p.slug));
+const rest = products.filter((p) => !featured.has(p.slug));
+const tableRows = [...reviews.map((r) => r.p), ...rest].slice(0, 24);
+
+const publishedSlugs = (await getCollection('landings')).map((e) => e.slug);
+const related = LANDINGS.filter((l) => l.slug !== slug && publishedSlugs.includes(l.slug)).slice(0, 6);
+
+const siteUrl = 'https://televizorieftin.ro';
+const pageUrl = siteUrl + '/' + slug + '/';
+const heroUrl = '/assets/images/landings/' + d.hero;
+const schemas = [
+  { '@type': 'BreadcrumbList', itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Acasa', item: siteUrl + '/' },
+    { '@type': 'ListItem', position: 2, name: cfg.label, item: pageUrl },
+  ] },
+  { '@type': 'Article', headline: d.title, image: siteUrl + heroUrl, datePublished: d.updated + 'T08:00:00+03:00', dateModified: d.updated + 'T08:00:00+03:00', author: { '@type': 'Organization', name: 'Redactia televizorieftin.ro', url: siteUrl + '/redactia/' }, publisher: { '@type': 'Organization', name: 'televizorieftin.ro', url: siteUrl, logo: { '@type': 'ImageObject', url: siteUrl + '/assets/images/logo-televizorieftin.webp' } }, mainEntityOfPage: pageUrl, description: d.description, inLanguage: 'ro-RO' },
+  ...(d.faq.length ? [{ '@type': 'FAQPage', mainEntity: d.faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) }] : []),
+  ...(reviews.length ? [{ '@type': 'ItemList', numberOfItems: reviews.length, itemListElement: reviews.map((r, i) => ({ '@type': 'ListItem', position: i + 1, name: r.p.name })) }] : []),
+].map((s) => ({ '@context': 'https://schema.org', ...s }));
+const updated = new Date(d.updated + 'T08:00:00+03:00').toLocaleDateString('ro-RO', { day: 'numeric', month: 'long', year: 'numeric' });
+---
+<Layout title={d.title} description={d.description} modified={d.updated} ogImage={heroUrl} ogImageWidth={1600} ogImageHeight={900} published={d.updated + 'T08:00:00+03:00'}>
+  {schemas.map((s) => <script type="application/ld+json" set:html={JSON.stringify(s)} />)}
+  <Nav />
+
+  <div class="lp-top">
+    <nav class="lp-crumb"><div class="wrap"><a href="/">Acasa</a> <span>/</span> {cfg.label}</div></nav>
+    <header class="lp-head">
+      <div class="wrap lp-measure">
+        <h1>{d.h1}</h1>
+        <div class="lp-byline">Scris de <a href="/redactia/">Redactia televizorieftin.ro</a> <span>&#183;</span> <time>Actualizat {updated}</time></div>
+      </div>
+    </header>
+  </div>
+
+  <div class="lp-herowrap">
+    <div class="wrap lp-measure">
+      <img src={heroUrl} alt={d.heroAlt} width="1600" height="900" loading="eager" class="lp-hero__img" />
+    </div>
+  </div>
+
+  {d.intro.length > 0 && (
+  <section class="lp-intro">
+    <div class="wrap lp-measure">
+      {d.intro.map((p) => <p class="lp-intro__p">{p}</p>)}
+    </div>
+  </section>
+  )}
+
+  {d.summary.length > 0 && (
+  <section class="lp-summary">
+    <div class="wrap lp-measure">
+      <div class="lp-sum">
+        <p class="lp-sum__t">Pe scurt</p>
+        <ul>{d.summary.map((s) => <li set:html={mdBold(s)} />)}</ul>
+      </div>
+    </div>
+  </section>
+  )}
+
+  {reviews.length > 0 && (
+  <section class="lp-picks sec--gray">
+    <div class="wrap">
+      <span class="tag">Selectia noastra</span>
+      <h2>Cele mai bune televizoare {hSuffix}</h2>
+      <p class="sec-sub">Ordonate dupa nota si numarul de recenzii reale ale cumparatorilor. Preturile se schimba, apasa Vezi oferta pentru pretul curent.</p>
+      <div class="lp-picks__grid">
+        {reviews.map((r) => (
+          <article class="pick">
+            <div class="pick__media"><img src={r.p.img} alt={r.p.name} width="500" height="500" loading="lazy" /></div>
+            <div class="pick__body">
+              <div class="pick__head">
+                {r.p.rating && <span class="pick__rating">&#9733; {stars(r.p.rating)} <span>({r.p.reviews})</span></span>}
+                <span class="pick__price">{ofMoney(r.p.price)}</span>
+              </div>
+              <span class="pick__eyebrow">{r.kicker}</span>
+              <h3 class="pick__name">{cleanName(r.p.name)}</h3>
+              <div class="pick__chips">
+                <span class="pick__chip--brand">{r.p.brand}</span><span>{r.p.inch}"</span><span>{r.p.resolution}</span><span>{r.p.panel}</span>{r.p.os && <span>{r.p.os.split(/[,/]/)[0].trim()}</span>}
+              </div>
+              {splitParas(r.text).map((para) => <p class="pick__text">{para}</p>)}
+              <button class="pick__buy" data-o={b64(r.p.slug)} type="button">Vezi oferta</button>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+  )}
+
+  <section class="lp-body">
+    <div class="wrap lp-measure">
+      <article class="lp-article">
+        <Content />
+      </article>
+    </div>
+  </section>
+
+  {tableRows.length > 1 && (
+  <section class="lp-table-sec sec--gray">
+    <div class="wrap">
+      <span class="tag">Comparatie</span>
+      <h2>Toate modelele {hSuffix}, una langa alta</h2>
+      <div class="lp-tblwrap">
+        <table class="lp-tbl">
+          <thead><tr><th>Model</th><th>Diagonala</th><th>Rezolutie</th><th>Panou</th><th>Nota</th><th>Pret</th><th></th></tr></thead>
+          <tbody>
+            {tableRows.map((p) => (
+              <tr>
+                <td data-l="Model">{cleanName(p.name)}</td>
+                <td data-l="Diagonala">{p.inch}"</td>
+                <td data-l="Rezolutie">{p.resolution}</td>
+                <td data-l="Panou">{p.panel}</td>
+                <td data-l="Nota">{p.rating ? stars(p.rating) : '-'}</td>
+                <td data-l="Pret">{ofMoney(p.price)}</td>
+                <td data-l="" class="lp-tbl__act"><button class="lp-tbl__buy" data-o={b64(p.slug)} type="button">Vezi oferta</button></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+  )}
+
+  {d.faq.length > 0 && (
+  <section class="lp-faq">
+    <div class="wrap lp-measure">
+      <span class="tag">Intrebari frecvente</span>
+      <h2>Intrebari despre televizoarele {hSuffix}</h2>
+      <div class="lp-faq__list">
+        {d.faq.map((f) => (
+          <details class="lp-faq__item">
+            <summary>{f.q}</summary>
+            <div class="lp-faq__a">{f.a}</div>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+  )}
+
+  {related.length > 0 && (
+  <section class="lp-related sec--gray">
+    <div class="wrap">
+      <span class="tag">Vezi si</span>
+      <h2>Alte categorii de televizoare ieftine</h2>
+      <div class="lp-related__grid">
+        {related.map((l) => <a href={`/${l.slug}/`} class="lp-related__card">{l.label}</a>)}
+      </div>
+    </div>
+  </section>
+  )}
+
+  <section class="lp-author">
+    <div class="wrap lp-measure">
+      <div class="lp-authbox">
+        <div class="lp-authbox__mono">Rt</div>
+        <div>
+          <strong>Scris de Redactia televizorieftin.ro</strong>
+          <p>Selectii si ghiduri de televizoare ieftine, actualizate pe date reale. <a href="/redactia/">Despre redactie si metodologie</a>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <Footer />
+
+  <style>
+    .lp-byline{margin-top:.55rem;font-size:.85rem;color:var(--ink-3)}
+    .lp-byline a{color:var(--teal-dark);font-weight:600;text-decoration:none}
+    .lp-byline span{margin:0 .2rem;color:var(--gray-4)}
+    .lp-summary{padding:.3rem 0 0}
+    .lp-sum{background:var(--teal-bg);border:1px solid rgba(13,148,136,.18);border-radius:var(--r-lg);padding:1rem 1.2rem}
+    .lp-sum__t{font-weight:800;color:var(--teal-dark);text-transform:uppercase;letter-spacing:.05em;font-size:.8rem;margin:0 0 .5rem}
+    .lp-sum ul{margin:0;padding-left:1.15rem}
+    .lp-sum li{margin-bottom:.4rem;color:var(--ink-2);line-height:1.6}
+    .lp-sum li:last-child{margin-bottom:0}
+    .lp-sum strong{color:var(--ink)}
+    .lp-author{padding:0 0 2.5rem}
+    .lp-authbox{display:flex;gap:1rem;align-items:center;background:var(--gray-1);border:1px solid var(--gray-3);border-radius:var(--r-lg);padding:1rem 1.2rem}
+    .lp-authbox__mono{flex:0 0 46px;width:46px;height:46px;border-radius:50%;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}
+    .lp-authbox strong{color:var(--ink)}
+    .lp-authbox p{margin:.2rem 0 0;font-size:.9rem;color:var(--ink-2)}
+    .lp-authbox a{color:var(--teal-dark)}
+    .lp-top{padding-top:56px}
+    @media(min-width:768px){.lp-top{padding-top:60px}}
+    .lp-crumb{background:var(--gray-1);border-bottom:1px solid var(--gray-3);font-size:.85rem}
+    .lp-crumb .wrap{padding-top:.55rem;padding-bottom:.55rem;color:var(--ink-3)}
+    .lp-crumb a{color:var(--teal-dark);text-decoration:none}
+    .lp-crumb span{margin:0 .35rem;color:var(--gray-4)}
+    .lp-head{padding:1.4rem 0 .9rem}
+    .lp-head h1{margin:0}
+    .lp-head__date{display:block;margin-top:.5rem;font-size:.8rem;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+    .lp-measure{max-width:46rem}
+
+    .lp-herowrap{padding-bottom:.4rem}
+    .lp-hero__img{width:100%;height:auto;border-radius:var(--r-lg);display:block;aspect-ratio:16/9;object-fit:cover}
+
+    .lp-intro{padding:1.1rem 0 .3rem}
+    .lp-intro__p{font-size:1.08rem;line-height:1.7;color:var(--ink-2);margin-bottom:.8rem}
+    .lp-intro__p:first-child{font-size:1.15rem;color:var(--ink)}
+
+    .lp-body{padding:1.6rem 0}
+    .lp-article{font-size:1.02rem;line-height:1.75;color:var(--ink-2)}
+    .lp-article :global(h2){margin:2rem 0 .7rem;font-size:clamp(1.25rem,2.6vw,1.6rem);color:var(--ink)}
+    .lp-article :global(h3){margin:1.3rem 0 .4rem}
+    .lp-article :global(p){margin-bottom:.85rem}
+    .lp-article :global(ul){margin:.2rem 0 1.1rem;padding-left:1.15rem}
+    .lp-article :global(li){margin-bottom:.45rem}
+    .lp-article :global(img){width:100%;height:auto;aspect-ratio:3/2;object-fit:cover;border-radius:var(--r-lg);margin:1.1rem 0;display:block}
+    .lp-article :global(strong){color:var(--ink)}
+    .lp-article :global(a){color:var(--teal-dark);text-decoration:underline}
+    .lp-intro__p :global(a),.lp-sum :global(a){color:var(--teal-dark);text-decoration:underline}
+
+    .lp-picks__grid{display:grid;grid-template-columns:1fr;gap:1rem;margin-top:1.2rem}
+    @media(min-width:640px){.lp-picks__grid{grid-template-columns:1fr 1fr}}
+    .pick{background:#fff;border:1px solid var(--gray-3);border-radius:var(--r-lg);overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow)}
+    .pick__media{background:#fff;padding:1.1rem 1rem .4rem;display:flex;justify-content:center}
+    .pick__media img{width:auto;max-height:250px;object-fit:contain}
+    .pick__body{padding:0 1rem 1rem;display:flex;flex-direction:column;gap:.45rem}
+    .pick__head{display:flex;justify-content:space-between;align-items:center}
+    .pick__rating{background:var(--teal-bg);color:var(--teal-dark);font-weight:800;font-size:.85rem;padding:.15rem .5rem;border-radius:var(--r)}
+    .pick__rating span{color:var(--ink-3);font-weight:600}
+    .pick__price{font-weight:800;color:var(--ink);font-size:1.1rem}
+    .pick__eyebrow{color:var(--teal-dark);font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.03em}
+    .pick__name{font-size:1.12rem;color:var(--ink);margin:0;line-height:1.25}
+    .pick__chips{display:flex;flex-wrap:wrap;gap:.3rem;margin:.15rem 0}
+    .pick__chips span{background:var(--gray-2);color:var(--ink-2);font-size:.72rem;font-weight:600;padding:.15rem .45rem;border-radius:var(--r)}
+    .pick__chip--brand{background:var(--ink)!important;color:#fff!important}
+    .pick__text{font-size:.9rem;line-height:1.6;color:var(--ink-2);margin:0 0 .35rem}
+    .pick__buy{margin-top:.4rem;background:var(--teal);color:#fff;border:0;border-radius:var(--r);padding:.6rem;font-weight:700;cursor:pointer;font-size:.95rem}
+    .pick__buy:hover{background:var(--teal-dark)}
+
+    .lp-tblwrap{overflow-x:auto;border:1px solid var(--gray-3);border-radius:var(--r-lg);background:#fff;margin-top:1rem}
+    .lp-tbl{width:100%;border-collapse:collapse;font-size:.92rem;min-width:640px}
+    .lp-tbl thead th{background:var(--teal);color:#fff;text-align:left;padding:.65rem .8rem;font-size:.88rem;white-space:nowrap}
+    .lp-tbl td{padding:.6rem .8rem;border-top:1px solid var(--gray-2);color:var(--ink-2)}
+    .lp-tbl tbody tr:nth-child(even){background:var(--gray-1)}
+    .lp-tbl__act{text-align:right}
+    .lp-tbl__buy{background:var(--teal);color:#fff;border:0;border-radius:var(--r);padding:.4rem .75rem;font-weight:700;font-size:.82rem;cursor:pointer;white-space:nowrap}
+    @media(max-width:640px){
+      .lp-tblwrap{overflow:visible;border:0;background:transparent}
+      .lp-tbl{min-width:0}.lp-tbl thead{display:none}
+      .lp-tbl tbody,.lp-tbl tr,.lp-tbl td{display:block}
+      .lp-tbl tr{background:#fff!important;border:1px solid var(--gray-3);border-radius:var(--r-lg);margin-bottom:.7rem;padding:.3rem .2rem;box-shadow:var(--shadow)}
+      .lp-tbl td{border:0;padding:.35rem .8rem;display:flex;justify-content:space-between;gap:1rem;align-items:center}
+      .lp-tbl td[data-l]:not([data-l=""]):before{content:attr(data-l);font-weight:700;color:var(--ink-3);font-size:.78rem}
+      .lp-tbl td[data-l="Model"]{border-bottom:1px solid var(--gray-2);font-weight:700;color:var(--ink)}
+      .lp-tbl__buy{width:100%;padding:.55rem}
+    }
+
+    .lp-faq{padding:2.5rem 0}
+    .lp-faq__list{margin-top:1rem;display:flex;flex-direction:column;gap:.6rem}
+    .lp-faq__item{background:#fff;border:1px solid var(--gray-3);border-radius:var(--r-lg);padding:.2rem .9rem}
+    .lp-faq__item summary{cursor:pointer;font-weight:700;color:var(--ink);padding:.7rem 0;list-style:none}
+    .lp-faq__item summary::-webkit-details-marker{display:none}
+    .lp-faq__item summary::after{content:"+";float:right;color:var(--teal);font-weight:800}
+    .lp-faq__item[open] summary::after{content:"\2013"}
+    .lp-faq__a{padding:0 0 .8rem;color:var(--ink-2);line-height:1.65}
+
+    .lp-related__grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:1rem}
+    @media(min-width:640px){.lp-related__grid{grid-template-columns:repeat(3,1fr)}}
+    .lp-related__card{background:#fff;border:1px solid var(--gray-3);border-radius:var(--r-lg);padding:.9rem 1rem;text-decoration:none;color:var(--ink);font-weight:700;transition:all .15s}
+    .lp-related__card:hover{border-color:var(--teal);color:var(--teal-dark)}
+  </style>
+</Layout>

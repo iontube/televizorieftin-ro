@@ -7,6 +7,12 @@ import SchemaMarkup from '../components/SchemaMarkup.astro';
 import Footer from '../components/Footer.astro';
 import products from '../data/products.json';
 import oferte from '../data/oferte.json';
+import { getCollection } from 'astro:content';
+import { LANDINGS, LANDING_GROUPS } from '../data/landings.mjs';
+const publishedLp = new Set((await getCollection('landings')).map((e) => e.slug));
+const lpGroups = LANDING_GROUPS
+  .map((g) => ({ group: g, items: LANDINGS.filter((l) => l.group === g && publishedLp.has(l.slug)) }))
+  .filter((g) => g.items.length);
 
 const title = 'Ce televizor ieftin sa cumpar in 2026: 15 modele comparate si testate';
 const description = 'Am comparat 15 televizoare ieftine intre 500-1400 lei disponibile in Romania. Samsung, LG, Xiaomi, TCL si METZ de 32 si 43 inch cu Smart TV, 4K, LED si QLED. Recenzie detaliata pentru fiecare model.';
@@ -88,6 +94,24 @@ const isoDate = mainModified;
       </div>
     </div>
   </section>
+
+  {lpGroups.length > 0 && (
+  <section class="lp-nav-sec">
+    <div class="wrap">
+      <span class="tag">Cauta rapid</span>
+      <h2>Cauta televizorul ieftin dupa ce conteaza</h2>
+      <p class="sec-sub">Mergi direct la selectia potrivita: dupa diagonala, buget sau tipul de televizor.</p>
+      <div class="lp-nav-grid">
+        {lpGroups.map((g) => (
+          <div class="lp-nav-col">
+            <p class="lp-nav-h">{g.group}</p>
+            {g.items.map((l) => <a href={`/${l.slug}/`} class="lp-nav-link">{l.navLabel}</a>)}
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+  )}
 
   <section id="televizoare" class="sec--gray">
     <div class="wrap">
@@ -330,5 +354,11 @@ const isoDate = mainModified;
       .cmp__act{padding-top:.5rem!important}
       .cmp__buy{width:100%;padding:.6rem}
     }
+    .lp-nav-sec{padding:2.75rem 0}
+    .lp-nav-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem 1rem;margin-top:1.3rem}
+    @media(min-width:768px){.lp-nav-grid{grid-template-columns:repeat(4,1fr)}}
+    .lp-nav-h{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);font-weight:700;margin:0 0 .5rem;padding-bottom:.4rem;border-bottom:2px solid var(--teal-bg)}
+    .lp-nav-link{display:block;padding:.32rem 0;color:var(--ink-2);text-decoration:none;font-weight:600;font-size:.92rem}
+    .lp-nav-link:hover{color:var(--teal-dark)}
   </style>
 </Layout>

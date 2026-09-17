@@ -1,0 +1,61 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+const title = 'Redactia televizorieftin.ro: cine scrie si cum testam';
+const description = 'Echipa editoriala din spatele televizorieftin.ro, metodologia de selectie a televizoarelor ieftine si sursele de date pe care le folosim.';
+const siteUrl = 'https://televizorieftin.ro';
+const schema = {
+  '@context': 'https://schema.org', '@type': 'AboutPage', name: title, url: siteUrl + '/redactia/',
+  publisher: { '@type': 'Organization', name: 'televizorieftin.ro', url: siteUrl, logo: { '@type': 'ImageObject', url: siteUrl + '/assets/images/logo-televizorieftin.webp' } },
+};
+---
+<Layout title={title} description={description}>
+  <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+  <Nav />
+  <div class="rd">
+    <div class="wrap rd-measure">
+      <span class="tag">Despre noi</span>
+      <h1>Redactia televizorieftin.ro</h1>
+      <p class="rd-lead">Suntem o echipa care urmareste piata de televizoare ieftine din Romania si pune la un loc datele care conteaza cand cumperi: pret, diagonala, rezolutie, platforma Smart TV si parerile reale ale cumparatorilor.</p>
+
+      <div class="rd-card">
+        <div class="rd-mono">Rt</div>
+        <div>
+          <strong>Redactia televizorieftin.ro</strong>
+          <p>Echipa editoriala. Scriem ghidurile si selectiile de modele, actualizam preturile si verificam specificatiile pe fisele oficiale ale produselor.</p>
+        </div>
+      </div>
+
+      <h2>Cum alegem modelele recomandate</h2>
+      <p>Nu inventam clasamente si nu scriem recenzii pentru televizoare pe care nu le putem verifica. Selectia fiecarui articol pleaca de la modelele disponibile in magazinele partenere, filtrate dupa criterii clare:</p>
+      <ul>
+        <li>pretul se incadreaza in gama pe care o acoperim, sub 1500 de lei;</li>
+        <li>televizorul are o diagonala si un panou reale, confirmate pe fisa produsului;</li>
+        <li>modelele sunt ordonate dupa nota si numarul de recenzii reale ale cumparatorilor.</li>
+      </ul>
+      <p>Preturile si stocurile se schimba des, de aceea nu afisam preturi fixe care se invechesc. Butonul de oferta te duce spre pretul curent din magazin, iar noi actualizam periodic selectiile.</p>
+
+      <h2>Ce date folosim</h2>
+      <p>Specificatiile provin de pe fisele oficiale ale produselor. Notele si numarul de recenzii vin de la cumparatorii reali din magazine. Recomandarile pe distante de vizionare si consum se bazeaza pe standardele uzuale din industrie si pe consumul masurat al panourilor din aceasta gama.</p>
+
+      <h2>Cum ne finantam</h2>
+      <p>Cand cumperi printr-un link de pe site, putem primi un comision din partea magazinului, fara niciun cost suplimentar pentru tine. Comisionul nu influenteaza ordinea recomandarilor, care ramane bazata pe nota si pe numarul de recenzii.</p>
+    </div>
+  </div>
+  <Footer />
+  <style>
+    .rd{padding-top:60px}
+    .rd .wrap{padding-top:2rem;padding-bottom:3rem}
+    .rd-measure{max-width:46rem}
+    .rd-lead{font-size:1.12rem;color:var(--ink);line-height:1.7;margin:.4rem 0 1.5rem}
+    .rd h2{margin:1.8rem 0 .6rem}
+    .rd p{margin-bottom:.85rem;color:var(--ink-2);line-height:1.7}
+    .rd ul{margin:0 0 1rem 1.15rem;color:var(--ink-2)}
+    .rd li{margin-bottom:.4rem}
+    .rd-card{display:flex;gap:1rem;align-items:center;background:var(--gray-1);border:1px solid var(--gray-3);border-radius:var(--r-lg);padding:1rem 1.2rem;margin:.5rem 0 1.5rem}
+    .rd-card strong{color:var(--ink)}
+    .rd-card p{margin:.25rem 0 0;font-size:.92rem}
+    .rd-mono{flex:0 0 48px;width:48px;height:48px;border-radius:50%;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem}
+  </style>
+</Layout>
